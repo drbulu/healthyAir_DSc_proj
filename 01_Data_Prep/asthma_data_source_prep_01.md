@@ -1,8 +1,3 @@
----
-output:
-  html_document:
-    keep_md: yes
----
 # Asthma Data Component - Data Processing Strategy
 
 Before commencing the project, it is a good idea to have a path towards efficiently acquiring and processing data, given the amount of it to be processed.
@@ -139,25 +134,30 @@ future note: Need to check totals :smile: and also check table footnotes!
 
 During the process of inspecting the data I looked at the structure of the data to see what I was in for, i.e. what variables would I need to extract from the data after harvesting them from the web.
 
-It then dawned upon me that the state of the data was not quite what I thought it was. Basically, the *Sample size* variable is somehow used to create the *Prevalence
-(percent)* variable. This would make sense, given that the prevalence would simply be the _number of asthma sufferers **in the study**_ <u>divided by</u> the sample size. 
+It then dawned upon me that the state of the data was not quite what I thought it was. Basically, the **Sample size** variable is somehow used to create the **Prevalence
+(percent)** variable. This would make sense, given that the prevalence would simply be the _number of asthma sufferers **in the study**_ <u>divided by</u> the sample size. 
 
 Oddly, or so it would seem, the *Prevalence (number)* variable seems to be a calculation of the _number of asthma sufferers **in the regional population**_ using the *Prevalence
-(percent)* variable and the **total** population of the region in question.
+(percent)* variable and the *total* population of the region in question.
 
-This wasn't as problematic as I might have thought, because it is a simple matter to derive (i.e. estimate) either the **total population** or the **asthma sufferes in sample** as indicated in the above paragraphs. However, without knowledge of the method of calculation, such derivative variables would always be tenuous in part because:
+Number looked like the best option as percentages seemed to be derivative... but that doesn't look like the case, because the prevalence number is not the portion of the sample size that have asthma, it is the calculated estimate of the population of the region in question. 
 
-* they would always be an estimate of the actual parameter, as any "adjustments" would be hidden
-* *Prevalence(percent)* is the key variable, since some sort of ratio or proportion would be required for some modelling or machine learning applications.
-* such an estimate is easily obtained where needed, with the caveats mentioned.
+Therefore we need to extract the number positive using the sample size and prevalence. (best guess) given that I don't have the data avaiable :disappointed:
 
-That said, I figured that it would be useful to add the Overall data table to the list of data to obtain. Fortunately, this is as simple as including this entry in the demographic attributes table defined in a previous section:
+
+This could be a problem, or you could simply use the prevalence number, and estimate the region's population based on that (acknowledging variances in correspondece to the totals).
+
+No drama, simply calcuate BOTH the sample number and total population using the sample size and prevalence (number), respectively in combination with the population!
+
+demo calcs :smile:
+
+
 
 | Demographic      | ID |
 |------------------|:--:|
 | Overall          |  1 |
 
-This gives the updated table below:
+This gives an updated table:
 
 | Demographic      | ID |
 |------------------|:--:|
@@ -170,12 +170,9 @@ This gives the updated table below:
 
 With this updated table, we can now programmatically reconstruct all of the URLs that we need to use in order to connect to anc acquire the data that we will use for analysis.
 
-Incidentally, this demographic ID table is an example of a [metadata](https://en.wikipedia.org/wiki/Metadata) table, specifically a form of "structural" metadata. Personally, I am a fan of metadata tables such as this as they make research more automatable, and thus reproducible. 
-
-Basically, one has to simply update the metadata table by adding data that can be constructed to process data that conforms to the same rules as the other entries in the same table. This has the benefit of providing an overall picture of what kind of information is being represented, given the similar processing that all rows will receive :wink". It also makes data management far more useful as one can keep track of the data analysis inputs.
-
 ## Next Steps
 
 Use of web scraping tools such as [rvest](https://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/) in combination with the knowledge gained above to generate script(s) to acquire and process the data for further analysis. :smile:
+
 
 <br/>
