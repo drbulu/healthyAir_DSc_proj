@@ -112,9 +112,11 @@ This basically mean that we can write code to efficiently obtain all of the info
 
 ## Archive Data: 1999 to 2010
 
-Note: Child data only exists from **2001** onwards!
+There is a slight difference between the the URLs of the current data and those of the archive datasets. Looking back, I realised that the child data only exists from the year **2001** onwards. This has implications for input validation to prevent attempts to retrieve child data from before that point. In addition, child data from between 2001 and 2004 exists only as woefully incomplete aggregate (overall) tables. Essentially, child data is only useful from about **2005** onwards, and is **not** worth the effort of importing previous years that will be discarded during subsequent data cleaning steps. 
 
-but 2001, 2004 child is only overall, and is rather incomplete
+This brings up an interesting decision. The adult dataset seems valid from 1999 (earliest record year) till the end of the data series in 2014. However, since part of the aim is to combine the adult and child datasets as part of some of the analyses, is it worth bothering with any data, adult or child, prior to 2005? Remembering that we have 15 and 9 years worth of data if we begin in 1995 and 2005, respectively. Fortunately, this is a relatively trivial question given how we intend to process the data in question.
+
+The links below highlight the main differences and similarities between the archive URLs, which can be further compared to the more recent data.
 
 ### 2010
 https://www.cdc.gov/asthma/brfss/2010/lifetime/tableL3.htm
@@ -131,9 +133,15 @@ https://www.cdc.gov/asthma/brfss/09/lifetime/tableL3.htm
 
 https://www.cdc.gov/asthma/brfss/09/current/tableC3.htm
 
-https://www.cdc.gov/asthma/brfss/01/lifetime/child/tableL3.htm
+https://www.cdc.gov/asthma/brfss/05/child/current/tableC3.htm
 
-future note: Need to check totals :smile: and also check table footnotes!
+* The first thing to note is that the asthma recency and demographic data type designations are identical to those in the "current dataset". This is good because we can use the same table to automate data import.
+
+* The next thing is that the URL suffixes for adult (**current/tableL3.htm**) and child (**/child/current/tableL3.htm**) tables have changed slightly from those in the current data series. This, naturally, alters the logic required to process the data.
+
+* The next change is that years prior to 2010, are included in the **2 digit** year format. This is a trivial problem, but important to note to avoid needless grief.
+
+Without going into any detail, the logic presented in the previous section can be adapted to cover these variations. However, separate implemetation of this logic, preferably as a separate function, is advised to avoid the construction of needlessly complicated code.
 
 ### Number vs. Percent
 
@@ -177,5 +185,7 @@ Basically, one has to simply update the metadata table by adding data that can b
 ## Next Steps
 
 Use of web scraping tools such as [rvest](https://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/) in combination with the knowledge gained above to generate script(s) to acquire and process the data for further analysis. :smile:
+
+future note: Need to check table footnotes for "surprises" :wink:!
 
 <br/>

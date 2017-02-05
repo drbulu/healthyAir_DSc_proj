@@ -107,9 +107,11 @@ This basically mean that we can write code to efficiently obtain all of the info
 
 ## Archive Data: 1999 to 2010
 
-Note: Child data only exists from **2001** onwards!
+There is a slight difference between the the URLs of the current data and those of the archive datasets. Looking back, I realised that the child data only exists from the year **2001** onwards. This has implications for input validation to prevent attempts to retrieve child data from before that point. In addition, child data from between 2001 and 2004 exists only as woefully incomplete aggregate (overall) tables. Essentially, child data is only useful from about **2005** onwards, and is **not** worth the effort of importing previous years that will be discarded during subsequent data cleaning steps. 
 
-but 2001, 2004 child is only overall, and is rather incomplete
+This brings up an interesting decision. The adult dataset seems valid from 1999 (earliest record year) till the end of the data series in 2014. However, since part of the aim is to combine the adult and child datasets as part of some of the analyses, is it worth bothering with any data, adult or child, prior to 2005? Remembering that we have 15 and 9 years worth of data if we begin in 1995 and 2005, respectively. Fortunately, this is a relatively trivial question given how we intend to process the data in question.
+
+The links below highlight the main differences and similarities between the archive URLs, which can be further compared to the more recent data.
 
 ### 2010
 https://www.cdc.gov/asthma/brfss/2010/lifetime/tableL3.htm
@@ -126,38 +128,39 @@ https://www.cdc.gov/asthma/brfss/09/lifetime/tableL3.htm
 
 https://www.cdc.gov/asthma/brfss/09/current/tableC3.htm
 
-https://www.cdc.gov/asthma/brfss/01/lifetime/child/tableL3.htm
+https://www.cdc.gov/asthma/brfss/05/child/current/tableC3.htm
 
-future note: Need to check totals :smile: and also check table footnotes!
+* The first thing to note is that the asthma recency and demographic data type designations are identical to those in the "current dataset". This is good because we can use the same table to automate data import.
+
+* The next thing is that the URL suffixes for adult (**current/tableL3.htm**) and child (**/child/current/tableL3.htm**) tables have changed slightly from those in the current data series. This, naturally, alters the logic required to process the data.
+
+* The next change is that years prior to 2010, are included in the **2 digit** year format. This is a trivial problem, but important to note to avoid needless grief.
+
+Without going into any detail, the logic presented in the previous section can be adapted to cover these variations. However, separate implemetation of this logic, preferably as a separate function, is advised to avoid the construction of needlessly complicated code.
 
 ### Number vs. Percent
 
 During the process of inspecting the data I looked at the structure of the data to see what I was in for, i.e. what variables would I need to extract from the data after harvesting them from the web.
 
-It then dawned upon me that the state of the data was not quite what I thought it was. Basically, the **Sample size** variable is somehow used to create the **Prevalence
-(percent)** variable. This would make sense, given that the prevalence would simply be the _number of asthma sufferers **in the study**_ <u>divided by</u> the sample size. 
+It then dawned upon me that the state of the data was not quite what I thought it was. Basically, the *Sample size* variable is somehow used to create the *Prevalence
+(percent)* variable. This would make sense, given that the prevalence would simply be the _number of asthma sufferers **in the study**_ <u>divided by</u> the sample size. 
 
 Oddly, or so it would seem, the *Prevalence (number)* variable seems to be a calculation of the _number of asthma sufferers **in the regional population**_ using the *Prevalence
-(percent)* variable and the *total* population of the region in question.
+(percent)* variable and the **total** population of the region in question.
 
-Number looked like the best option as percentages seemed to be derivative... but that doesn't look like the case, because the prevalence number is not the portion of the sample size that have asthma, it is the calculated estimate of the population of the region in question. 
+This wasn't as problematic as I might have thought, because it is a simple matter to derive (i.e. estimate) either the **total population** or the **asthma sufferes in sample** as indicated in the above paragraphs. However, without knowledge of the method of calculation, such derivative variables would always be tenuous in part because:
 
-Therefore we need to extract the number positive using the sample size and prevalence. (best guess) given that I don't have the data avaiable :disappointed:
+* they would always be an estimate of the actual parameter, as any "adjustments" would be hidden
+* *Prevalence(percent)* is the key variable, since some sort of ratio or proportion would be required for some modelling or machine learning applications.
+* such an estimate is easily obtained where needed, with the caveats mentioned.
 
-
-This could be a problem, or you could simply use the prevalence number, and estimate the region's population based on that (acknowledging variances in correspondece to the totals).
-
-No drama, simply calcuate BOTH the sample number and total population using the sample size and prevalence (number), respectively in combination with the population!
-
-demo calcs :smile:
-
-
+That said, I figured that it would be useful to add the Overall data table to the list of data to obtain. Fortunately, this is as simple as including this entry in the demographic attributes table defined in a previous section:
 
 | Demographic      | ID |
 |------------------|:--:|
 | Overall          |  1 |
 
-This gives an updated table:
+This gives the updated table below:
 
 | Demographic      | ID |
 |------------------|:--:|
@@ -170,9 +173,14 @@ This gives an updated table:
 
 With this updated table, we can now programmatically reconstruct all of the URLs that we need to use in order to connect to anc acquire the data that we will use for analysis.
 
+Incidentally, this demographic ID table is an example of a [metadata](https://en.wikipedia.org/wiki/Metadata) table, specifically a form of "structural" metadata. Personally, I am a fan of metadata tables such as this as they make research more automatable, and thus reproducible. 
+
+Basically, one has to simply update the metadata table by adding data that can be constructed to process data that conforms to the same rules as the other entries in the same table. This has the benefit of providing an overall picture of what kind of information is being represented, given the similar processing that all rows will receive :wink". It also makes data management far more useful as one can keep track of the data analysis inputs.
+
 ## Next Steps
 
 Use of web scraping tools such as [rvest](https://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/) in combination with the knowledge gained above to generate script(s) to acquire and process the data for further analysis. :smile:
 
+future note: Need to check table footnotes for "surprises" :wink:!
 
 <br/>
