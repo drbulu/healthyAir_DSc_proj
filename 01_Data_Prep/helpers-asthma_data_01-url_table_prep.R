@@ -82,6 +82,12 @@ asthma_helper_func_01$prepAsthmaYearURLsByID = function(demID, yearSeries, isAdu
 # recency of the data collected to restrict data series size or to include future data
 # as required. Further refinements could be made, but it should suffice to keep this 
 # function relatively simple to avoid unecessary complexity and resulting logical error.
+# by default: earliest time period for adult and child tables are 2000 and 2005.
+# previous years contain comparatively incomplete data. Save us some drama :)
+
+# it might be good to modify this function to have a timeFrame variable instead of
+# endYear to enable custom date ranges... will work on this later :)
+
 asthma_helper_func_01$createAsthmaURLTables = function(metaData = NULL, groups = c("adult", "child"), endYear = 2014){
     # choose default dataset if none provided
     if (is.null(metaData)) metaData = asthma_helper_func_01$initAsthmaMetaData()
@@ -92,7 +98,7 @@ asthma_helper_func_01$createAsthmaURLTables = function(metaData = NULL, groups =
         yearSeries = c()
         getAdultURL = c()        
         if (tolower(groups[i]) == "adult"){
-            yearSeries = c(1999:endYear)
+            yearSeries = c(2000:endYear)
             getAdultURL = TRUE
         } else {
             yearSeries = c(2005:endYear)
@@ -104,6 +110,8 @@ asthma_helper_func_01$createAsthmaURLTables = function(metaData = NULL, groups =
             tableID = paste0(groups[i], ".", metaData$demographic[j])           
             urlTableData = asthma_helper_func_01$prepAsthmaYearURLsByID(metaData$demID[j], 
                 yearSeries, getAdultURL)
+            # store group information within table for ease of use
+            urlTableData$Group = tolower(groups[i])
             # add urlTableData to resultList using tableID 
             resultList[[tableID]] = urlTableData
         }        

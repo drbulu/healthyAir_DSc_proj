@@ -1,4 +1,6 @@
-# Asthma Data Component - Data Processing Strategy
+# Asthma Data Preparation I - Data Processing Strategy
+
+## Introduction
 
 Before commencing the project, it is a good idea to have a path towards efficiently acquiring and processing data, given the amount of it to be processed.
 
