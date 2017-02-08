@@ -78,8 +78,6 @@ getDataListSlice = function(dataList, subset = 1, merge=T){
     else return (y)    
 }
 
-lifetimeTables = lapply(urlTables2, FUN = function(x) return(x[x$Recency == "lifetime", ])  )
-
 # Checked a representative table (first one) from each list using the getDatalistSlice()
 # function to try to ensure that the data sets were all in a predictable format
 
@@ -109,8 +107,18 @@ lifetimeTables = lapply(urlTables2, FUN = function(x) return(x[x$Recency == "lif
 
 # child tables (current): col names are in Row 1
 # need to sanitize and use to replace initial colNames
+# for all 4 tables!
 
+# Going by the first table, lifetime and current are affected by same issues :)
 
+# current data has different issues
+# some seem to be 1 line, but newline characters and odd columns are an issue
+
+# child data = same as adult, but column names = Xn
+# for current, use grepl("X[1-9]+, names(x)) to confirm structure
+# then throw warning...
+
+# different standardisation for current vs archive data series.
 
 ## 4. 
 
