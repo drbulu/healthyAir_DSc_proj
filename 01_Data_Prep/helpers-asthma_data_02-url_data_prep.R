@@ -51,7 +51,7 @@ asthma_helper_func_02$getTableHTML = function(url) if (require(rvest)) return(ht
 
 # Briefly tried using a lapply approach.. to no avail: http://stackoverflow.com/questions/17842705/
 
-getDatasetTablesFromURL = function(urlTable){
+asthma_helper_func_02$getDatasetTablesFromURL = function(urlTable){
     resultsList = list()
     for(i in 1:nrow(urlTable)){
         
@@ -66,63 +66,139 @@ getDatasetTablesFromURL = function(urlTable){
     return(resultsList)
 }
 
-## 3. 
+## 3. Preprocess the names of specific tables to avoid downstream data merge issues
 
-# reduce merge() http://stackoverflow.com/questions/8091303/
-# Reduce(function(...) merge(..., all=T), list.of.data.frames)
+# These are Adult L21 tables from 2001 and 2002
 
-# handy test function
-getDataListSlice = function(dataList, subset = 1, merge=T){
-    y = lapply(dataList, FUN = function(x) return(x[subset,]) )
-    if (merge) return( Reduce(function(...) merge(..., all=T), y))
-    else return (y)    
+asthma_helper_func_02$preprocAdultGenderL21 = function(inputDataList){
+    tableIndexREGEX = "200[1-2].L21.adult"
+    indexSelect = grepl(tableIndexREGEX, names(inputDataList))
+    inputDataList[indexSelect] = lapply(inputDataList[indexSelect],
+        FUN = function(x){
+            sizeCols = grep("^[Ss]ample[Ss]ize", names(x))
+            if(length(sizeCols) == 2){
+                names(x)[ sizeCols[1] ] = paste0("Male.", names(x)[ sizeCols[1] ])
+                names(x)[ sizeCols[2] ] = paste0("Female.", names(x)[ sizeCols[2] ])
+            }
+            prevCols = grep("^[Pp]revalence", names(x))
+            if(length(prevCols) == 2){
+                names(x)[ prevCols[1] ] = paste0("Male.", names(x)[ prevCols[1] ])
+                names(x)[ prevCols[2] ] = paste0("Female.", names(x)[ prevCols[2] ])                
+            }
+            return(x)
+        })    
+    return(inputDataList)
 }
 
-# Checked a representative table (first one) from each list using the getDatalistSlice()
-# function to try to ensure that the data sets were all in a predictable format
+## 4. process table names
 
-# for current
-# a = getDataListSlice(urlTables2)
-# testTable = getDatasetTablesFromURL(a)
+## 4a. Reformat the names of columns (variables) that span two rows:
+# header row and first data row
+asthma_helper_func_02$mergeMultiRowColNames = function(targetTable){
+    newNames = paste(names(targetTable), targetTable[1, ], sep=".")
+    newNames = gsub("^X[0-9]+\\.", "", newNames)
+    newNames = gsub("\\.State", "", newNames)    
+    return(newNames)
+}
 
-# for lifetime
-# lifetimeTables = lapply(urlTables2, FUN = function(x) return(x[x$Recency == "lifetime", ])  )
-# lifetimeSummaryMeta = getDataListSlice(lifetimeTables)
-# lifetimeTestTables = getDatasetTablesFromURL(lifetimeSummaryMeta)
+## 4b. Clean preprocessed (and merged if required) namees prior to data merge
+asthma_helper_func_02$cleanTableColNames = function(rawTableNames, isGenderPercent=T){
+    # remove spaces
+    processedNames = gsub("(\\s)+", "", rawTableNames)
+    # commence processing
+    processedNames = gsub("95(.)+CI(.)+", ".95_CI", processedNames)
+    processedNames = gsub("Prevalence(.)+[Pp]ercent(.)+", "Prev.perc", processedNames)
+    processedNames = gsub("Prevalence(.)+[Nn]umber(.)+", "Prev.num", processedNames)
+    processedNames = gsub("StandardError", "Prev.perc.SE", processedNames)
+    # Fix SE.(percent) to just SE
+    processedNames = gsub("(.)[Pp]ercent(.)", "", processedNames)
+    processedNames = gsub("[Rr]ace(.)+[Ee]thnicity", "Ethnicity", processedNames)
+    # to correctly process names based on input table type
+    if(isGenderPercent){
+        processedNames = gsub("FemalePrevalence", "Female.Prev.perc", processedNames)
+        processedNames = gsub("MalePrevalence", "Male.Prev.perc", processedNames)        
+    } else {
+        processedNames = gsub("FemalePrevalence", "Female.Prev", processedNames)
+        processedNames = gsub("MalePrevalence", "Male.Prev", processedNames)        
+    }
+    # required to complete processing of Prevalence columns
+    processedNames = gsub("FemalePrev", "Female.Prev", processedNames)
+    processedNames = gsub("MalePrev", "Male.Prev", processedNames)
+    # final tidy up
+    processedNames = gsub("^Female.S", "FemaleS", processedNames)
+    processedNames = gsub("^Male.S", "MaleS", processedNames)    
+    processedNames = gsub("^(\\.)+", "", processedNames)
+    # return data frame names
+    return(processedNames)
+}
 
-# both sets of instructions returned a list of dataframes that contained ONE representative
-# table for adult and child data for each demographic for current and lifetime data
-# idea: this should be sufficient to see what data processing patterns will be required!
+## 5. Clean the names and columns of a particular table
 
-# ... results 
+## used by createDataseriesFromList() to merge a set of related tables 
 
-# Adult tables (current):
-# testing showed that tables adult.C1 and C3, C5, C6, C7 are pretty much good in terms of initial colNames
-# need minimal cleaning
+asthma_helper_func_02$cleanAsthmaTableNames = function(targetTable, removeNameRow = T, isGenderPercent=T){
+    # merge table names if required
+    if(tolower(targetTable[1,1]) == "state" ){
+        names(targetTable) = asthma_helper_func_02$mergeMultiRowColNames(targetTable)
+        if(removeNameRow) targetTable = targetTable[-1, ]
+    }
+    # tidy table names
+    names(targetTable) = asthma_helper_func_02$cleanTableColNames(
+        names(targetTable), 
+        isGenderPercent)
+    # remove spurious columns from latest adult tables (2011 - 2014)
+    if("||||||" %in% names(targetTable)){        
+        colsToKeep = !grepl("(\\|){2,}", names(targetTable))
+        targetTable = targetTable[, colsToKeep]
+    }
+    return(targetTable)
+}
+ 
+## 6. Consolidate all of the individual tables in a particular dataseries
 
-# Tables C21, 
-# Row 1 = table colnames
-# need to fix colnames then merge with current colnames
-# except col 1: state is fine, but duplicated
+## 6a. Helpful regular expression function
 
-# child tables (current): col names are in Row 1
-# need to sanitize and use to replace initial colNames
-# for all 4 tables!
+# lovely little function - uses REGEX to cut out matching text: 
+# inspired by searching ?regmatches (help page) on RStudio console
 
-# Going by the first table, lifetime and current are affected by same issues :)
+asthma_helper_func_02$extractMatch = function(x, pattern, invertMatch=F){
+    result = regmatches(x, regexpr(pattern, x), invert = invertMatch)
+    return(result)
+}
 
-# current data has different issues
-# some seem to be 1 line, but newline characters and odd columns are an issue
+## 6b. Consolidation function
 
-# child data = same as adult, but column names = Xn
-# for current, use grepl("X[1-9]+, names(x)) to confirm structure
-# then throw warning...
+# a data series is a list of tables that consist of the same data observations
+# collected over successive years.
 
-# different standardisation for current vs archive data series.
+# Aim: create a single data frame that neatly contains all of this information
+# My preferred solution to this problem: http://stackoverflow.com/questions/8091303/
+# Reduce(function(...) merge(..., all=T), list.of.data.frames)
+# Arguably one of my favourite tools in my R toolkit
 
-## 4. 
-
-
-
-## 5. 
+asthma_helper_func_02$createDataseriesFromList = function(sourceTableList, sortData = T){
+    # clean the names of the data.frames in sourceTableList
+    sourceTableList = lapply(sourceTableList, 
+        FUN = asthma_helper_func_02$cleanAsthmaTableNames)
+    # can add table name cleaning step here
+    for(i in 1:length(sourceTableList)){
+        tableID = names(sourceTableList)[[i]]
+        sourceTableList[[i]][, "Group.ID"] = asthma_helper_func_02$extractMatch(tolower(tableID), "adult|child")
+        sourceTableList[[i]][, "Year"] = asthma_helper_func_02$extractMatch(tableID, "[0-9]{4}")
+        sourceTableList[[i]][, "Table.ID"] = asthma_helper_func_02$extractMatch(tableID, "[C|L][0-9]+")
+    }    
+    # need to get rid of the 95% CI columns: Neither needed nor unique!
+    sourceTableList = lapply(sourceTableList, FUN = function(x){
+        colsToKeep = !grepl("95_CI", names(x))
+        return(x[, colsToKeep])
+    })
+    # Seamlessly condense dataframe list: http://stackoverflow.com/questions/8091303/
+    mergedTable = Reduce(function(...) merge(..., all=T), sourceTableList)
+    # For conveience: order table by Table.ID, then by State, then by Year    
+    if(sortData) mergedTable = mergedTable[order(
+        mergedTable$Table.ID, 
+        mergedTable$State, 
+        mergedTable$Year), ]
+    return(mergedTable)
+}
 

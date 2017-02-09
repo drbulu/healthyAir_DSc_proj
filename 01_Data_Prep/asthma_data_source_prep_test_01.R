@@ -1,5 +1,7 @@
 #### Asthma Prevanence data: Data Preparation - Testing data  ####
 
+##### WARNING: THIS SCRIPT IS MESSY! It is a "virtual" scrap book #####
+
 ## 01 - Create list of tables of URLs to access
 
 # i) import helper functions
@@ -158,7 +160,8 @@ createDataseriesList = function(asthmaURLTableList){
 # complete test, to start picking up possible errors
 asthmaDataSeriesList = createDataseriesList(asthma_URL_table_list)
 
-# check function
+# more data check functions
+
 
 checkTableListDim = function(dataFrameList){
     resultList = lapply(dataFrameList, FUN = function(x){
@@ -179,6 +182,137 @@ adultGenderDataList = getDatasetTablesFromURL(asthma_URL_table_list$adult.Gender
 
 checkTableListNames = function(dataFrameList) return(lapply(dataFrameList, FUN = names))
 adultGenderListNames = checkTableListNames(adultGenderDataList)
+
+## We need to look at the adultGenderListNames to see what patterns we
+## can find in the adultGenderDataList set of tables to work out how to fix
+## the errors that we saw previously in data merge.
+
+## Then we need to test how well our changes work through a combination of
+# cleanBasicNames() and mergeTableNameRows().
+# Problem: mergeTableNameRows() returns a data frame, so we should separate
+# the name scrubbing functionality of mergeTableNameRows from the data
+# whose columns are being named
+# the process, as specified in cleanAsthmaTableNames() above is
+# 1) ID multiple row table names and merge them
+# 2) run the cleanBasicNames() to complete the process...
+
+mergeMultiRowColNames = function(targetTable){
+    newNames = paste(names(targetTable), targetTable[1, ], sep=".")
+    newNames = gsub("^X[0-9]+\\.", "", newNames)
+    newNames = gsub("\\.State", "", newNames)    
+    return(newNames)
+}
+
+# copied cleanBasicNames() functionality here also...
+# need this function to return cleaned names, not data.frame :)
+cleanTableColNames = function(rawTableNames, isGenderPercent=T){
+    # remove spaces
+    processedNames = gsub("(\\s)+", "", rawTableNames)
+    
+    processedNames = gsub("95(.)+CI(.)+", ".95_CI", processedNames)
+    processedNames = gsub("Prevalence(.)+[Pp]ercent(.)+", "Prev.perc", processedNames)
+    processedNames = gsub("Prevalence(.)+[Nn]umber(.)+", "Prev.num", processedNames)
+    processedNames = gsub("StandardError", "Prev.perc.SE", processedNames)
+    # Fix SE.(percent) to just SE
+    processedNames = gsub("(.)[Pp]ercent(.)", "", processedNames)
+    processedNames = gsub("[Rr]ace(.)+[Ee]thnicity", "Ethnicity", processedNames)
+    if(isGenderPercent){
+        processedNames = gsub("FemalePrevalence", "Female.Prev.perc", processedNames)
+        processedNames = gsub("MalePrevalence", "Male.Prev.perc", processedNames)        
+    } else {
+        processedNames = gsub("FemalePrevalence", "Female.Prev", processedNames)
+        processedNames = gsub("MalePrevalence", "Male.Prev", processedNames)        
+    }
+    processedNames = gsub("^Female.S", "FemaleS", processedNames)
+    processedNames = gsub("^Male.S", "MaleS", processedNames)    
+    processedNames = gsub("^(\\.)+", "", processedNames)
+    #
+    
+    return(processedNames)
+}
+
+processTableColNames = function(inputNames,  isGenderPercent=T){
+    scrubbedNames = mergeMultiRowColNames(inputNames)
+    scrubbedNames = cleanTableColNames(scrubbedNames, isGenderPercent=isGenderPercent)
+    return(scrubbedNames)
+}
+
+# Now to test the functionality on the adultGenderListNames test list that contains
+# all of the names of the adult Gender tables that need proper processing
+
+test1_adultGenderListNames = lapply(adultGenderListNames, FUN=cleanTableColNames)
+# check the unique list of names to see if all are homogeneous
+unique(unlist(test1_adultGenderListNames))
+
+# comparing it to the last set of names
+setdiff(unique(unlist(test1_adultGenderListNames)), 
+    test1_adultGenderListNames$`2014.L21.adult`)
+
+# The names: "Male", "Female", "SampleSize" and "Prev.perc" stand out as needing to 
+# be fixed. 
+# 1. "Male", "Female" are there because the year 2000 datasets were not properly merged
+# This is fixed by processTableColNames(). For example...
+processTableColNames(adultGenderDataList$`2000.C21.adult`)
+# 2. "SampleSize" and "Prev.perc" are due to issues processing the 2001 and 2002 datasets.
+# seems to be now fixed by cleanTableColNames() for C21 tables. For example...
+cleanTableColNames(names(adultGenderDataList$`2001.C21.adult`))
+# problems persist with L21 tables though
+
+# this should hopefully fix the situation
+preprocAdultGenderL21 = function(inputDataList){
+    tableIndexREGEX = "200[1-2].L21.adult"
+    indexSelect = grepl(tableIndexREGEX, names(inputDataList))
+    inputDataList[indexSelect] = lapply(inputDataList[indexSelect],
+        FUN = function(x){
+            sizeCols = grep("^[Ss]ample[Ss]ize", names(x))
+            if(length(sizeCols) == 2){
+                names(x)[ sizeCols[1] ] = paste0("Male", names(x)[ sizeCols[1] ])
+                names(x)[ sizeCols[2] ] = paste0("Female", names(x)[ sizeCols[2] ])
+            }
+            prevCols = grep("^[Pp]revalence", names(x))
+            if(length(prevCols) == 2){
+                names(x)[ prevCols[1] ] = paste0("Male", names(x)[ prevCols[1] ])
+                names(x)[ prevCols[2] ] = paste0("Female", names(x)[ prevCols[2] ])                
+            }
+            return(x)
+        })    
+    return(inputDataList)
+}
+
+# now we can hopefully fix this final issue with modifications to processTableColNames()
+# that was previously defined above
+
+processTableColNames = function(inputNames,  isGenderPercent=T){
+    preppedpreprocAdultGenderL21(inputDataList)
+    scrubbedNames = mergeMultiRowColNames(inputNames)
+    scrubbedNames = 
+    return(scrubbedNames)
+}
+
+# list to test with = adultGenderDataList
+
+### NEW VERSION ... FINAL FORM FOR USE
+# Note: this deprecates processTableColNames by using the functionality that it
+# contains
+cleanAsthmaTableNames = function(targetTable, removeNameRow = T, isGenderPercent=T){
+    # merge table names if required
+    if(tolower(targetTable[1,1]) == "state" ){
+        names(targetTable) = mergeMultiRowColNames(targetTable)
+        if(removeNameRow) targetTable = targetTable[-1, ]
+    }
+    # tidy table names
+    names(targetTable) = cleanTableColNames(targetTable, isGenderPercent)
+    # remove spurious columns from latest adult tables (2011 - 2014)
+    if("||||||" %in% names(targetTable)){        
+        colsToKeep = !grepl("(\\|){2,}", names(targetTable))
+        targetTable = targetTable[, colsToKeep]
+    }
+    return(targetTable)
+}
+
+## Hopefully the final test
+# cleanAsthmaTableNames()
+
 # Now we can work on File I/O a bit ... need to be able to 
 # 1. save a list of data.frames to a folder
 # 2. retrieve the data frames from a list of files or a folder into a list

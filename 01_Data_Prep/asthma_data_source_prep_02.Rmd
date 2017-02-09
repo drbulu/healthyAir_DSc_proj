@@ -94,6 +94,8 @@ Functionality stored in the helper file: **helpers-asthma_data_02-url_data_prep.
 
 <b style="color:red;">Note:</b> Needed to run test script to develop and refine table cleaning functinality. **asthma_data_source_prep_test_01.R**.
 
+<b style="color:red;">Note 2:</b> The validated data processing script: **asthma_data_source_prep_01.R**.
+
 ### Note:
 Data can be saved to disc as simple plain text CSV or tab delimeted tables, or as Excel spreadsheets. pros and cons.
 
