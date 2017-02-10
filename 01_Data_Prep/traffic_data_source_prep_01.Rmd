@@ -1,2 +1,48 @@
+---
+output:
+  html_document:
+    keep_md: yes
+---
+# Traffic Data Preparation I
+
+## Introduction
+
+Learned valuable lessons from the 
 
 Traffic: https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm
+
+## Current Data: 2011 to 2014
+
+
+https://www.fhwa.dot.gov/policyinformation/travel_monitoring/16novtvt/16novtvt.xls
+
+Basically, there are potentially too many quirks, and the tedium and error risk of 
+trying to manually process
+
+## Older Data: 2003 to 2014
+
+https://www.fhwa.dot.gov/ohim/tvtw/08dectvt/08dectvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/08jantvt/08jantvt.xls
+
+https://www.fhwa.dot.gov/ohim/tvtw/07dectvt/07dectvt.xlsx #
+https://www.fhwa.dot.gov/ohim/tvtw/07jantvt/07jantvt.xls
+
+https://www.fhwa.dot.gov/ohim/tvtw/06dectvt/06dectvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/06febtvt/06febtvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/06jantvt/jan06tvt.xls #
+
+https://www.fhwa.dot.gov/ohim/tvtw/05dectvt/05dectvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/05jantvt/05jantvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/04dectvt/04dectvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/04jantvt/04jantvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/03dectvt/03dectvt.xls
+https://www.fhwa.dot.gov/ohim/tvtw/03jultvt/03jultvt.xls
+
+## Next series
+https://www.fhwa.dot.gov/ohim/tvtw/03juntvt/tvtjun03.xls
+https://www.fhwa.dot.gov/ohim/tvtw/03jantvt/tvtjan03.xls
+https://www.fhwa.dot.gov/ohim/tvtw/02dectvt/tvtdec02.xls
+https://www.fhwa.dot.gov/ohim/tvtw/02juntvt/tvtjun02.xls
+https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan02.xls
+
+### Overview

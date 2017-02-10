@@ -1,0 +1,21 @@
+---
+output:
+  html_document:
+    keep_md: yes
+---
+# Pollution Data Preparation I - Data Processing Strategy
+
+## Introduction
+
+By state (national is not helpful)
+
+https://www.epa.gov/sites/production/files/2016-12/state_tier1_90-16.xls
+
+
+bigger challenge: There are many more data sources that would need aggregation, however, this seems excessive for our current purposes. If monthly granularity was critical for analysis, this archive is the place to visit. A lot of aggregation would be required to get a decent summary by state as outlined above. This maybe worth a look if initial analysis and modelling reveals the need for more specific information
+
+https://aqsdr1.epa.gov/aqsweb/aqstmp/airdata/download_files.html
+
+## Current Data: 2011 to 2014
+
+### Overview
