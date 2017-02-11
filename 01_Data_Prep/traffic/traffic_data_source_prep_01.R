@@ -32,7 +32,7 @@ rawFiles = paste(rawDataDir, grep("(.)+\\.xls(.){0,1}", dir(rawDataDir), value=T
 extractSheetNames = function(x) if(require(xlsx)) return(names(getSheets(loadWorkbook(x))))
 
 # return simple 1 row data frame summarising sheetnames
-summariseSheetNames = function(filePath){
+summariseSheetNames = function(filePath, advancedTrim=F){
     dataResult = data.frame()
 
     fileName = gsub("(.){0,}/", "", filePath)
@@ -46,16 +46,34 @@ summariseSheetNames = function(filePath){
     if(!!length(monthID)) dataResult[1, "Month"] = monthID
     # summarise sheet
     dataResult[1, "Sheets"] = paste(extractSheetNames(filePath), collapse = "; ")
+    # Sheet group processing logic from empirical analysis of initial groups
+    if(advancedTrim){
+        # rationalising information to limit extraneous groups 
+        # i.e remove groups that are not real
+        # based on initial analysis of group counts
+        # i) remove trailing whitespaces
+        dataResult[1, "Sheets"] = gsub("( )+$", "", dataResult[1, "Sheets"])
+        # ii) more whitespace removal - bad whitespace placement
+        dataResult[1, "Sheets"] = gsub(" ;", ";", dataResult[1, "Sheets"])
+        # iii) Basic typos relating to the "spelling" of the page col
+        dataResult[1, "Sheets"] = gsub("Page1", "Page 1", dataResult[1, "Sheets"])
+        dataResult[1, "Sheets"] = gsub("page", "Page", dataResult[1, "Sheets"])
+        # iv) other typos
+        dataResult[1, "Sheets"] = gsub("; Sheet2", "", dataResult[1, "Sheets"])
+        dataResult[1, "Sheets"] = gsub("; SAVMT [Dd]ata", "; SAVMT", dataResult[1, "Sheets"])
+    }
     return(dataResult)
 }
 
-summariseTableSheetInfo = function(fileList){
+summariseTableSheetInfo = function(fileList, advancedTrim=F){
     # consolidate data frame list
-    summarySheetTable = Reduce(function(...) merge(..., all=T), lapply(fileList, summariseSheetNames))
+    sheetNameList = lapply(fileList, summariseSheetNames, advancedTrim=advancedTrim)
+    summarySheetTable = Reduce(function(...) merge(..., all=T), sheetNameList)
     # create factor variables for grouping
     summarySheetTable$Sheets = factor(summarySheetTable$Sheets)
     summarySheetTable$Month = factor(summarySheetTable$Month, levels = tolower(month.abb))
-    summarySheetTable = summarySheetTable[order(summarySheetTable$Year, summarySheetTable$Month), ]
+    summarySheetTable = summarySheetTable[order(summarySheetTable$Year, 
+        summarySheetTable$Month), ]
     # return summary table
     return(summarySheetTable)
 }
@@ -94,12 +112,45 @@ getSheetGroupList = function(dataFrame, groupCol){
 # get data frame of sheetNames
 # sorted by Month-Year and grouped by sheet names.
 trafficSheetNames = summariseTableSheetInfo(rawFiles)
-
 z = getSheetGroupSample(trafficSheetNames, "Sheets")
 # extract the subsets belonging to each group
 a = getSheetGroupList(trafficSheetNames, "Sheets")
 # lapply(a, function(x) nrow(x))
 
+# version 2
+trafficSheetNames2 = summariseTableSheetInfo(rawFiles, advancedTrim = T)
+
+z2 = getSheetGroupSample(trafficSheetNames2, "Sheets")
+# extract the subsets belonging to each group
+a2 = getSheetGroupList(trafficSheetNames2, "Sheets")
+# lapply(a2, function(x) nrow(x))
+
 # use grep to disect commonalities between groups
+# basically the main groups are those that contai
+
+# unique(grep("[Pp]age", trafficSheetNames$Sheets, value=T))
+
+# There are three main meta groups of the 16:
+# i) Tables and NO Pages --> Table 3 = sheet of interest
+# ii) Pages and No Tables --> Page 4, 5 and 6 = sheets of interest
+#     Page 4: Table 3 - "Rural" - "Region and State"
+#     Page 5: Table 3 - "Urban" - "Region and State"
+#     Page 6: Table 3 - "ALL" - "Region and State"
+# seems like Row 5 "State heading" or row 8 (data start)
+# or row 7 (First subheading: safer) are good points to skip to
+# Row 1 = Table title ... then skip to first
+# Region heading
+# Examples of differences: 10nov (1 line heading) vs 06apr (2 line heading)
+# import first 10
+# 1) Read title
+# 2) Locate first region heading
+# 3) 
+
+# test your processing rules on the FIRST member of each group BEFORE
+# trying things out on the rest of the data!
+
+# iii) Pages and No Tables -->
+
+
 
 # Table 3
