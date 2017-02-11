@@ -1,7 +1,6 @@
 ---
 output:
   html_document:
-    keep_md: yes
 ---
 # Asthma Data Preparation II - Data Processing Implementation
 

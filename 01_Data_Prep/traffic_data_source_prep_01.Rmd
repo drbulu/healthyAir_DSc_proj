@@ -1,7 +1,6 @@
 ---
 output:
   html_document:
-    keep_md: yes
 ---
 # Traffic Data Preparation I
 
@@ -46,3 +45,7 @@ https://www.fhwa.dot.gov/ohim/tvtw/02juntvt/tvtjun02.xls
 https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan02.xls
 
 ### Overview
+
+http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r
+
+

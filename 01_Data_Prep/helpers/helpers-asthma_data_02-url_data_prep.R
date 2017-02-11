@@ -23,7 +23,7 @@
 
 ## helper function list
 
-asthma_helper_func_02 = list()
+asthma_helpers_02 = list()
 
 ## 1. Using URL to extract the data table that it points to 
 
@@ -45,13 +45,13 @@ asthma_helper_func_02 = list()
 # since html_table() returns a list, we will return only the table that is the
 # first element of the list. This seems reasonable since each URL contains only ONE
 # table. This will need to change should that assumption become void.
-asthma_helper_func_02$getTableHTML = function(url) if (require(rvest)) return(html_table(read_html(url), header = NA, fill = T)[[1]])
+asthma_helpers_02$getTableHTML = function(url) if (require(rvest)) return(html_table(read_html(url), header = NA, fill = T)[[1]])
 
 ## 2. Obtain list of data frames from URL metadata table
 
 # Briefly tried using a lapply approach.. to no avail: http://stackoverflow.com/questions/17842705/
 
-asthma_helper_func_02$getDatasetTablesFromURL = function(urlTable){
+asthma_helpers_02$getDatasetTablesFromURL = function(urlTable){
     resultsList = list()
     for(i in 1:nrow(urlTable)){
         
@@ -61,7 +61,7 @@ asthma_helper_func_02$getDatasetTablesFromURL = function(urlTable){
             recencyID, urlTable[i, "demID"], ".",
             urlTable[i, "Group"])
         
-        resultsList[[dataTableID]] = asthma_helper_func_02$getTableHTML(urlTable$URL[i])
+        resultsList[[dataTableID]] = asthma_helpers_02$getTableHTML(urlTable$URL[i])
     }
     return(resultsList)
 }
@@ -70,7 +70,7 @@ asthma_helper_func_02$getDatasetTablesFromURL = function(urlTable){
 
 # These are Adult L21 tables from 2001 and 2002
 
-asthma_helper_func_02$preprocAdultGenderL21 = function(inputDataList){
+asthma_helpers_02$preprocAdultGenderL21 = function(inputDataList){
     tableIndexREGEX = "200[1-2].L21.adult"
     indexSelect = grepl(tableIndexREGEX, names(inputDataList))
     inputDataList[indexSelect] = lapply(inputDataList[indexSelect],
@@ -94,7 +94,7 @@ asthma_helper_func_02$preprocAdultGenderL21 = function(inputDataList){
 
 ## 4a. Reformat the names of columns (variables) that span two rows:
 # header row and first data row
-asthma_helper_func_02$mergeMultiRowColNames = function(targetTable){
+asthma_helpers_02$mergeMultiRowColNames = function(targetTable){
     newNames = paste(names(targetTable), targetTable[1, ], sep=".")
     newNames = gsub("^X[0-9]+\\.", "", newNames)
     newNames = gsub("\\.State", "", newNames)    
@@ -102,7 +102,7 @@ asthma_helper_func_02$mergeMultiRowColNames = function(targetTable){
 }
 
 ## 4b. Clean preprocessed (and merged if required) namees prior to data merge
-asthma_helper_func_02$cleanTableColNames = function(rawTableNames, isGenderPercent=T){
+asthma_helpers_02$cleanTableColNames = function(rawTableNames, isGenderPercent=T){
     # remove spaces
     processedNames = gsub("(\\s)+", "", rawTableNames)
     # commence processing
@@ -136,14 +136,14 @@ asthma_helper_func_02$cleanTableColNames = function(rawTableNames, isGenderPerce
 
 ## used by createDataseriesFromList() to merge a set of related tables 
 
-asthma_helper_func_02$cleanAsthmaTableNames = function(targetTable, removeNameRow = T, isGenderPercent=T){
+asthma_helpers_02$cleanAsthmaTableNames = function(targetTable, removeNameRow = T, isGenderPercent=T){
     # merge table names if required
     if(tolower(targetTable[1,1]) == "state" ){
-        names(targetTable) = asthma_helper_func_02$mergeMultiRowColNames(targetTable)
+        names(targetTable) = asthma_helpers_02$mergeMultiRowColNames(targetTable)
         if(removeNameRow) targetTable = targetTable[-1, ]
     }
     # tidy table names
-    names(targetTable) = asthma_helper_func_02$cleanTableColNames(
+    names(targetTable) = asthma_helpers_02$cleanTableColNames(
         names(targetTable), 
         isGenderPercent)
     # remove spurious columns from latest adult tables (2011 - 2014)
@@ -156,15 +156,8 @@ asthma_helper_func_02$cleanAsthmaTableNames = function(targetTable, removeNameRo
  
 ## 6. Consolidate all of the individual tables in a particular dataseries
 
-## 6a. Helpful regular expression function
-
-# lovely little function - uses REGEX to cut out matching text: 
-# inspired by searching ?regmatches (help page) on RStudio console
-
-asthma_helper_func_02$extractMatch = function(x, pattern, invertMatch=F){
-    result = regmatches(x, regexpr(pattern, x), invert = invertMatch)
-    return(result)
-}
+## 6a. Obtain generally useful and helpful regular expression function
+source("./01_Data_Prep/helpers/general_helpers_01.R")
 
 ## 6b. Consolidation function
 
@@ -176,16 +169,16 @@ asthma_helper_func_02$extractMatch = function(x, pattern, invertMatch=F){
 # Reduce(function(...) merge(..., all=T), list.of.data.frames)
 # Arguably one of my favourite tools in my R toolkit
 
-asthma_helper_func_02$createDataseriesFromList = function(sourceTableList, sortData = T){
+asthma_helpers_02$createDataseriesFromList = function(sourceTableList, sortData = T){
     # clean the names of the data.frames in sourceTableList
     sourceTableList = lapply(sourceTableList, 
-        FUN = asthma_helper_func_02$cleanAsthmaTableNames)
+        FUN = asthma_helpers_02$cleanAsthmaTableNames)
     # can add table name cleaning step here
     for(i in 1:length(sourceTableList)){
         tableID = names(sourceTableList)[[i]]
-        sourceTableList[[i]][, "Group.ID"] = asthma_helper_func_02$extractMatch(tolower(tableID), "adult|child")
-        sourceTableList[[i]][, "Year"] = asthma_helper_func_02$extractMatch(tableID, "[0-9]{4}")
-        sourceTableList[[i]][, "Table.ID"] = asthma_helper_func_02$extractMatch(tableID, "[C|L][0-9]+")
+        sourceTableList[[i]][, "Group.ID"] = gen_helpers_01$extractMatch(tolower(tableID), "adult|child")
+        sourceTableList[[i]][, "Year"] = gen_helpers_01$extractMatch(tableID, "[0-9]{4}")
+        sourceTableList[[i]][, "Table.ID"] = gen_helpers_01$extractMatch(tableID, "[C|L][0-9]+")
     }    
     # need to get rid of the 95% CI columns: Neither needed nor unique!
     sourceTableList = lapply(sourceTableList, FUN = function(x){

@@ -4,10 +4,10 @@
 # 1) reduce the Global namespace footprint
 # 2) enable ease of functionality management: 
 #    i.e. easier removal of groups of functions when not required :)
-asthma_helper_func_01 = list()
+asthma_helpers_01 = list()
 
 ## Metadata table generation 
-asthma_helper_func_01$initAsthmaMetaData = function(){
+asthma_helpers_01$initAsthmaMetaData = function(){
     demographic = c("Overall", "Gender", "Age", 
         "Ethnicity", "Education", "Income")
     demID = c(1, 21, 3, 5, 6, 7)    
@@ -18,7 +18,7 @@ asthma_helper_func_01$initAsthmaMetaData = function(){
 }
 
 # Core function for producing URLs from Current data archive
-asthma_helper_func_01$getCurrentAsthmaURL = function(yearID, baseURL, recID, demID, isAdult = TRUE){
+asthma_helpers_01$getCurrentAsthmaURL = function(yearID, baseURL, recID, demID, isAdult = TRUE){
     tableName = paste0("table", recID, demID, ".htm")
     # returns URL depending on whether ADULT or CHILD data is needed!
     if (isAdult) return( paste(baseURL, yearID, tableName, sep="/") )
@@ -26,7 +26,7 @@ asthma_helper_func_01$getCurrentAsthmaURL = function(yearID, baseURL, recID, dem
 }
 
 # Core function for producing URLs from Archive data archive
-asthma_helper_func_01$getArchiveAsthmaURL = function(yearID, baseURL, recID, demID, isAdult = TRUE){  
+asthma_helpers_01$getArchiveAsthmaURL = function(yearID, baseURL, recID, demID, isAdult = TRUE){  
     # preprocess yearID correctly if year is/not 2010.
     if (as.character(yearID) != "2010") yearID = substr(yearID, 3,4)    
     # extract recName according to recID (statement works ONLY for single item vector!)
@@ -44,7 +44,7 @@ asthma_helper_func_01$getArchiveAsthmaURL = function(yearID, baseURL, recID, dem
 # This function gets the tables for ONE specific demographic (demID) for
 # all of the years specified in yearSeries for the chosen subset (isAdultData)
 
-asthma_helper_func_01$prepAsthmaYearURLsByID = function(demID, yearSeries, isAdultData = T){    
+asthma_helpers_01$prepAsthmaYearURLsByID = function(demID, yearSeries, isAdultData = T){    
     ## empty data.frame object to fill later
     urlTable = data.frame()
     currentRow = 0
@@ -60,8 +60,8 @@ asthma_helper_func_01$prepAsthmaYearURLsByID = function(demID, yearSeries, isAdu
             # Generate URL by year: select function for URL creation
             # based on year (y): 2011 = start of current data series.
             urlFunc = NULL            
-            if (as.numeric(y) < 2011) urlFunc = asthma_helper_func_01$getArchiveAsthmaURL
-            else urlFunc = asthma_helper_func_01$getCurrentAsthmaURL
+            if (as.numeric(y) < 2011) urlFunc = asthma_helpers_01$getArchiveAsthmaURL
+            else urlFunc = asthma_helpers_01$getCurrentAsthmaURL
             # prepare arguments list for do.call()
             urlArgs = list(yearID = y, baseURL = baseURL, recID = recID, 
                 demID = demID, isAdult = isAdultData)
@@ -88,9 +88,9 @@ asthma_helper_func_01$prepAsthmaYearURLsByID = function(demID, yearSeries, isAdu
 # it might be good to modify this function to have a timeFrame variable instead of
 # endYear to enable custom date ranges... will work on this later :)
 
-asthma_helper_func_01$createAsthmaURLTables = function(metaData = NULL, groups = c("adult", "child"), endYear = 2014){
+asthma_helpers_01$createAsthmaURLTables = function(metaData = NULL, groups = c("adult", "child"), endYear = 2014){
     # choose default dataset if none provided
-    if (is.null(metaData)) metaData = asthma_helper_func_01$initAsthmaMetaData()
+    if (is.null(metaData)) metaData = asthma_helpers_01$initAsthmaMetaData()
     # create list object for results, and commence table creation
     resultList = list()    
     for (i in 1:length(groups)){
@@ -108,7 +108,7 @@ asthma_helper_func_01$createAsthmaURLTables = function(metaData = NULL, groups =
         # apply input options to URL table creation
         for (j in 1:nrow(metaData)){
             tableID = paste0(groups[i], ".", metaData$demographic[j])           
-            urlTableData = asthma_helper_func_01$prepAsthmaYearURLsByID(metaData$demID[j], 
+            urlTableData = asthma_helpers_01$prepAsthmaYearURLsByID(metaData$demID[j], 
                 yearSeries, getAdultURL)
             # store group information within table for ease of use
             urlTableData$Group = tolower(groups[i])
