@@ -12,7 +12,6 @@ gen_helpers_01$extractMatch = function(x, pattern, invertMatch=F){
     return(result)
 }
 
-
 # http://stackoverflow.com/questions/31924546/rvest-table-scraping-including-links
 
 gen_helpers_01$getHTMLtables = function(url){
