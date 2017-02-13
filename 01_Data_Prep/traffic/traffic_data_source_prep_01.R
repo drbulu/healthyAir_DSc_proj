@@ -362,3 +362,37 @@ nov02_rural2 = processSheet(x = nov02_rural, m="Nov", y="2002", roadType = "rura
 nov02_final = processTrafficTable(xlsFilePath = "./Data/traffic/raw/02novtvt.xls", "November", 2002)
 jun07_final = processTrafficTable(xlsFilePath = "./Data/traffic/raw/07juntvt.xls", "June", 2007)
 may15_final = processTrafficTable(xlsFilePath = "./Data/traffic/raw/15maytvt.xls", "May", 2015)
+
+## Now to fully realise the fruits of my labour :)
+
+# Adding local file information to metadata file, for ease of processing
+mergedURLTable$Local.XLS = paste(rawDataDir, mergedURLTable$XLS.File, sep = "/")
+
+# metadata processing function
+processFileMetadata = function(metaData, isList = F){
+    cat(paste0("processFileMetadata() - Processing metadata file ", deparse(substitute(metaData)), "...\n" ))
+    processedEntries = 0
+    resultSet = list()
+    for(i in 1:nrow(metaData)){
+        # extract and process data using metadata info
+        dataID = paste0(metaData$Month[i], "_",metaData$Year[i])
+        resultSet[[dataID]] = processTrafficTable(
+            xlsFilePath = metaData$Local.XLS[i], 
+            monthData = metaData$Month[i], 
+            yearData = metaData$Year[i])
+        processedEntries = i    
+    }
+    cat(paste0("processFileMetadata() - Processing complete! ", processedEntries, " entries processed!\n" ))
+    if(isList) return(resultSet)
+    else return(Reduce(function(...) merge(..., all=T), resultSet))
+}
+
+# all tables as a list
+trafficDataList = processFileMetadata(mergedURLTable, isList = T)
+
+# all data merged into a single data.frame
+trafficDataFrame = processFileMetadata(mergedURLTable, isList = F)
+
+# ALL DONE! Now to replace readxl functions with quiet version, and use
+# excel_sheets_quiet() to list sheets, 
+# benchmark via proc.time()
