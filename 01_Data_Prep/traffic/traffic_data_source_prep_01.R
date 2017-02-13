@@ -154,29 +154,79 @@ a2 = getSheetGroupList(trafficSheetNames2, "Sheets")
 
 # for this to work smoothly, we need to take full advantage of
 # the "mergedURLTable" metadata table to help us
-mergedURLTable
 
 processTrafficTable = function(xlsFilePath, monthData, yearData){
+    # 0. diagnostic msg: to keep track of processing progress
+    cat(paste("processTrafficTable() - Processing:", 
+        paste(monthData, yearData), xlsFilePath, "\n"))
     # 1. Load required packages
     if(!require(xlsx) | !require(readxl)) stop("package not found!")
     # 2. Extract sheet names using xlsx
-    sheetNames = names(getSheets(loadWorkbook(x)))
+    sheetNames = names(getSheets(loadWorkbook(xlsFilePath)))
     # 3. Choose behaviour depending on the sheet names
     # i) check if the sheetName set contains Table 3 or Pages 4 to 6
-    checkTable3 = grepl("[Tt]able 3", sheetNames)
-    checkPageNames = grepl("[Pp]age [4|5|6]", sheetNames)
-    # ii) s
-    # if(TRUE %in% checkPageNames){ #body }
-        # read in the list of sheets
-        # loop through sheets and process them
-    # if(TRUE %in% checkTable3){ #body }
-        # read in the list of sheets
-        # loop through sheets and process them
-    
-    sheetSubset = read_excel(path, sheet = 1, col_names = TRUE, na = "", skip = 0)
-    
-    #return?
+    checkTable3 = grepl("[Tt]able( )*3", sheetNames)
+    checkPageNames = grepl("[Pp]age( )*[4|5|6]", sheetNames)
+    # ii) If the previewed file contains the names "Page 4-6"
+    if(TRUE %in% checkPageNames){
+        sheetNameSubset = unique(sheetNames[which(checkPageNames == TRUE)])
+        sheetList = list()
+        for( sheetID in sheetNameSubset){
+            sheetSubset = readExcelSilent(path = xlsFilePath, sheet = sheetID)
+            sheetNum = as.numeric(
+                gen_helpers_01$extractMatch(x = sheetID, pattern = "[0-9]+"))
+            roadLevel = switch(as.character(sheetNum), 
+                "4" = "Rural", 
+                "5" = "Urban", 
+                "6" = "All")
+            sheetList[[sheetID]] = processSheet(x = sheetSubset, 
+                m=monthData, y=yearData, roadType = roadLevel)
+        }
+        return(Reduce(function(...) merge(..., all=T), sheetList))
+    }
+    # iii) If the previewed file contains the name "Table 3"
+    if(TRUE %in% checkTable3){
+        sheetID = which( checkTable3 == TRUE )
+        sheetSubset = readExcelSilent(path = xlsFilePath, sheet = sheetID)
+        sheetData = processSheet(x = preProcOldSheet(sheetSubset), 
+            m=monthData, y=yearData, roadType = "Rural")
+        return(sheetData)
+    }
 }
+
+# required helper!
+# reading excel files via read_excel:
+# tidy function to suppress read_excel() output
+# https://en.wikipedia.org/wiki/Null_device
+# https://github.com/tidyverse/readxl/issues/82
+# https://github.com/hadley/purrr
+
+readExcelSilent = function(...) {
+    require(purrr)
+    quiet_read <- purrr::quietly(readxl::read_excel)
+    out <- quiet_read(...)
+    if(length(c(out[["warnings"]], out[["messages"]])) == 0)
+        return(out[["result"]])
+    else readxl::read_excel(...)
+}
+
+## Borrowed heavily from this code:
+# from  t-kalinowski, on 27 Aug 2016 
+# excel_sheets <- function(path) {
+#     quiet_excel_sheets <- purrr::quietly(readxl::excel_sheets)
+#     out <- quiet_excel_sheets(path)
+#     if(length(c(out[["warnings"]], out[["messages"]])) == 0)
+#         return(out[["result"]])
+#     else readxl::excel_sheets(path)
+# }
+# 
+# read_excel <-  function(...) {
+#     quiet_read <- purrr::quietly(readxl::read_excel)
+#     out <- quiet_read(...)
+#     if(length(c(out[["warnings"]], out[["messages"]])) == 0)
+#         return(out[["result"]])
+#     else readxl::read_excel(...)
+# }
 
 # try: then refine based on mistakes made :)
 
@@ -199,11 +249,23 @@ prepRegionInfo = function(x, regionSet, regionCol = 1){
 ## required data: = Region, State, Preliminary, Revised
 
 processSheet = function(x, m, y, roadType){
-    
+    # 0. diagnostic msg: to keep track of processing progress
+    cat(paste("processSheet() - Processing:", paste(m, y, roadType), "\n"))
     # 1: Label the datasheet according to the regions
     regionNames = c("Northeast", "South Atlantic", "North Central", 
         "South Gulf", "West")
-    regionMeta = prepRegionInfo(x, regionNames, 1)
+    # Find the column containing the region (and state) info
+    regionREGEX = paste(paste0("^", regionNames, "$"), collapse = "|")
+    regionCol = c()
+    for(i in 1:length(x)){
+        isFound = grepl(regionREGEX, x[, i])
+        if(TRUE %in% isFound) {
+            regionCol = i
+            break;
+        }
+    }
+    # create metadata using regionNames and new regionCol info
+    regionMeta = prepRegionInfo(x, regionNames, regionCol)
     for(i in 1:nrow(regionMeta)){
         selectedRegion = regionMeta$Name[i]
         selectedRows = c(regionMeta$startRow[i]: regionMeta$endRow[i])
@@ -213,7 +275,6 @@ processSheet = function(x, m, y, roadType){
     x$Curr.Mon = m
     x$Year = y
     x$Road.Type = roadType
-    
     # 3: Rename desired table cols tables using information
     # i) Label State col using "New York" (any consistent name will do!)
     stateCol = unlist( findEntityColByRow(x, regex = "New York") )
@@ -228,26 +289,18 @@ processSheet = function(x, m, y, roadType){
     requiredNames = c("Region", "State", "Road.Type", "Year", "Curr.Mon", 
         "Curr.Mon.Prelim.Veh.mMiles", "Prev.Mon.Revised.Veh.mMiles")
     x = x[, requiredNames]
-    # 5: subset data rows using regionMeta metadata file
-    lastRow = testMeta[nrow(testMeta), "endRow" ]
-    if (lastRow > nrow(x) ) lastRow = nrow(x)
-    x = x[1:lastRow, ]
-    
     # remove vehicle miles rows that are non-numeric and remove "totals" rows!
     # suppressed warnings: NA coesion of non-numbers expected in invalid rows
-    
-    # need a new selection to prevent error!
-    # cut by region first, then by total
-    # x = x[is.finite(suppressWarnings(as.numeric(x$Curr.Mon.Prelim.Veh.mMiles))), ]
+    x = x[is.finite(suppressWarnings(as.numeric(x$Curr.Mon.Prelim.Veh.mMiles))), ]
     x = x[x$Region %in% regionNames, ]
     x = x[!grepl("total", x$State, ignore.case = T), ]
-    # 7: check data
-    # warning if nrow(x) is below a specif threshold = 51 is good, 
-    # 51 states expected, including DC!
+    # 7: check data: warning if nrow(x) is not right. 51 states expected, including DC!
+    if (nrow(x) != 51) warning(paste0(nrow(x), " row found, 51 expected!"))
     # 8: return data!
     return(x)
 }
 
+# helper functionality to support processSheet()
 findEntityColByRow = function(x, regex){
     resList = list()
     for(i in 1:nrow(x)){
@@ -264,7 +317,48 @@ nov02 = read_excel(rawFiles[1], sheet = "Table 3", col_names = TRUE, na = "", sk
 
 ## data processing function test
 
-jun07_rural = processSheet(x = jun07, m="Nov", y="2007", roadType = "rural")
-may15_rural = processSheet(x = may15, m="Nov", y="20015", roadType = "rural")
+jun07_rural = processSheet(x = jun07, m="Jun", y="2007", roadType = "rural")
+may15_rural = processSheet(x = may15, m="May", y="2015", roadType = "rural")
+nov02_rural = processSheet(x = nov02, m="Nov", y="2002", roadType = "rural")
 
-# Table 3
+## need this helper function to preprocess Excel sheets that of the 
+## old format. Strategy: Merge the Region and State columns to prepare
+## the data for proper downstream processing in processSheet()
+preProcOldSheet = function(x){
+    # 1. Prepare the Region col for merge
+    regionCol = unlist( findEntityColByRow(x, regex = "Northeast|South Gulf") )
+    names(x)[regionCol] = "Region"
+    x$Region = gsub("^[0-9]+(.)+[0-9]+$", "", x$Region)
+    x[is.na(x$Region), "Region"] = ""
+    # 2. Prepare the State col for merge
+    statesCol = unlist( findEntityColByRow(x, regex = "New York") )
+    names(x)[statesCol] = "State"
+    x[is.na(x$State), "State"] = ""
+    # 3. Merge Region and State to form Region.State
+    x$Region.State = paste0(x$Region, x$State)
+    # 4. Preserve columns that contain the words "Preliminary" and "Revised"
+    # so that this information will be preserved for processSheet() to
+    # process the data.frame result correctly.
+    regionNames = c("Northeast", "South Atlantic", "North Central", 
+        "South Gulf", "West")
+    metaData = prepRegionInfo(x, regionNames, grep("Region.State", names(x)))
+    metaRows = c()
+    metaSearchEnd = metaData$startRow[1] - 1
+    metaREGEX = "[Pp]relim|[Rr]evise"
+    for(i in 1:metaSearchEnd){
+        if(TRUE %in% grepl(metaREGEX, x[i, ])) metaRows = append(metaRows, i)
+    }
+    x[metaRows, "Region.State"] = "metaData"
+    x = x[x$Region.State != "", ]  #?
+    # 4. Remove the original Region and State cols. Avoids later issues
+    x = x[, !grepl("^Region$|^State$", names(x))]
+    return(x)
+}
+
+nov02_rural = preProcOldSheet(x)
+nov02_rural2 = processSheet(x = nov02_rural, m="Nov", y="2002", roadType = "rural")
+
+## After all this testing, processTrafficTable() should now be ready for "anything :)
+nov02_final = processTrafficTable(xlsFilePath = "./Data/traffic/raw/02novtvt.xls", "November", 2002)
+jun07_final = processTrafficTable(xlsFilePath = "./Data/traffic/raw/07juntvt.xls", "June", 2007)
+may15_final = processTrafficTable(xlsFilePath = "./Data/traffic/raw/15maytvt.xls", "May", 2015)
