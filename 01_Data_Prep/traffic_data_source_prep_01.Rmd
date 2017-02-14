@@ -49,3 +49,6 @@ https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan02.xls
 http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r
 
 
+##
+
+Benchmarking using proc.time(), revealed a much better performance using readxl functions over xlsx. Interestingly, processing of the lone xlsx file was faster once update performed!
