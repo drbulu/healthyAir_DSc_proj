@@ -1,6 +1,6 @@
 ---
 output:
-  html_document:
+  html_document
 ---
 # Pollution Data Preparation I - Data Processing Strategy
 
@@ -42,6 +42,64 @@ http://www.tandfonline.com/doi/abs/10.1080/00039896.1967.10664708
 
 
 
-## Current Data: 2011 to 2014
+## Strategy
 
-### Overview
+Split data into two files: 
+
+* metadata
+* emissions_data
+
+### Metadata
+
+Note: readme sheet of the source data gives an interesting insight into data creation and possible issues. Major note, this data set fused from other data sources, and interpolation used to fill in gaps. 
+
+Some definitions change over time, consequently, may need to fuse wild fires, prescribed fires and misc into FIRE_AND_MISC and combine the respective codes into a new identifier.
+
+3 Pairs of descriptors
+
+Source location metadata <!-- use proper HTML tables and set width = 50% -->
+
+| State | FIPS_CODE |
+|-------|------|
+| AL | 01 |
+
+Pollutant type metadata
+
+| Pollutant | Unit |
+|-------|------|
+| NOX | 1000 tons |
+
+Pollution sources metadata
+
+| Source | Tier1_CODE |
+|-------|------|
+| AL | 01 |
+
+Using the above examples:
+
+| Type  | Entity | Desc |
+|-------|--------|-------|
+| State | AL     | FIPS_CODE=01 |
+| Pollutant | NOX     | unit=1000 tons |
+| Source | 01 | FUEL COMB. ELEC. UTIL. |
+
+This summary metadata effectively condenses the accessory information to a more understand and simplified form. 
+
+This also has a number of important benefits:
+
+1) Reduces the amount of redundancy in the main data table, thus making the overall file size smaller, even though we have 2 files instead of one.
+
+2) Allows the remaining information to be transposed into a tidy data format ammenable for use in steps such as visulisation using **ggplot2**.
+
+column names become concatenated metadata codes e.g. STATE.SOURCE.Pollutant, which would be represented for example as AL.01.NOX using the sample tables above. 
+
+* care take to make sure these resulting column names are legal
+* can then use the metadata table to link the relevant abbreviations in the main data to additional related information.
+
+
+Initially, processing requirements for this data set appeared simple on face value. This was due to the fairly processed nature of the dataset. However, the need to prepare each dataset to minimise the need for data manipulation in downstream exploration and analysis complicated things.
+
+The structure of the original data set is not ammenable to this:
+
+
+The first solution is the function f(x) to process and transpose the data so that the Year information is extracted from the table names, and moved to its own column (variable). However, We have converted a dataset with approx 5321 rows and 27 cols, to one that has 22 rows and 5322 cols. This is slightly smaller and more useful, becasue years are in their own column

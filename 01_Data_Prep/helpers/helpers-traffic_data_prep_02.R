@@ -50,7 +50,7 @@ traffic_helpers_02$processTrafficTable = function(xlsFilePath, monthData, yearDa
     cat(paste("processTrafficTable() - Processing:", 
         paste(monthData, yearData), xlsFilePath, "\n"))
     # 1. Extract sheet names using readxl
-    sheetNames = traffic_helpers_02$excel_sheets_quiet(xlsFilePath)
+    sheetNames = gen_helpers_01$excel_sheets_quiet(xlsFilePath)
     # 2. Choose behaviour depending on the sheet names
     # i) check if the sheetName set contains Table 3 or Pages 4 to 6
     checkTable3 = grepl("[Tt]able( )*3", sheetNames)
@@ -60,7 +60,7 @@ traffic_helpers_02$processTrafficTable = function(xlsFilePath, monthData, yearDa
         sheetNameSubset = unique(sheetNames[which(checkPageNames == TRUE)])
         sheetList = list()
         for( sheetID in sheetNameSubset){
-            sheetSubset = traffic_helpers_02$read_excel_quiet(path = xlsFilePath, sheet = sheetID)
+            sheetSubset = gen_helpers_01$read_excel_quiet(path = xlsFilePath, sheet = sheetID)
             sheetNum = as.numeric(
                 gen_helpers_01$extractMatch(x = sheetID, pattern = "[0-9]+"))
             roadLevel = switch(as.character(sheetNum), 
@@ -76,7 +76,7 @@ traffic_helpers_02$processTrafficTable = function(xlsFilePath, monthData, yearDa
     # iii) If the previewed file contains the name "Table 3"
     if(TRUE %in% checkTable3){
         sheetID = which( checkTable3 == TRUE )
-        sheetSubset = traffic_helpers_02$read_excel_quiet(path = xlsFilePath, sheet = sheetID)
+        sheetSubset = gen_helpers_01$read_excel_quiet(path = xlsFilePath, sheet = sheetID)
         sheetData = traffic_helpers_02$processSheet(
             x = traffic_helpers_02$preProcOldSheet(sheetSubset), 
             m=monthData, y=yearData, roadType = "Rural")
@@ -206,30 +206,4 @@ traffic_helpers_02$findEntityColByRow = function(x, regex){
         if(TRUE %in% isFound) resList[[ paste0("row", i) ]] = which(isFound == T)
     }
     return(resList)
-}
-
-### ... silent readxl wrapper functions with the help of purrr
-
-## Borrowed entirely from this code:
-# https://github.com/tidyverse/readxl/issues/82
-# From:  t-kalinowski (27-Aug-2016 )
-
-traffic_helpers_02$excel_sheets_quiet <- function(path) {
-    if(!require(readxl) | !require(purrr)) 
-        stop("Package(s) 'readxl' and/or 'purrr' not found! ")
-    quiet_excel_sheets <- purrr::quietly(readxl::excel_sheets)
-    out <- quiet_excel_sheets(path)
-    if(length(c(out[["warnings"]], out[["messages"]])) == 0)
-        return(out[["result"]])
-    else readxl::excel_sheets(path)
-}
-
-traffic_helpers_02$read_excel_quiet <-  function(...) {
-    if(!require(readxl) | !require(purrr)) 
-        stop("Package(s) 'readxl' and/or 'purrr' not found! ")
-    quiet_read <- purrr::quietly(readxl::read_excel)
-    out <- quiet_read(...)
-    if(length(c(out[["warnings"]], out[["messages"]])) == 0)
-        return(out[["result"]])
-    else readxl::read_excel(...)
 }
