@@ -67,3 +67,12 @@ gen_helpers_01$read_excel_quiet <-  function(...) {
         return(out[["result"]])
     else readxl::read_excel(...)
 }
+
+# basic function to save CSV with basic standardised functionality
+gen_helpers_01$saveAsCsv = function(dataFrame, dirName, fileName){
+    # create dataDir with any subdirs    
+    if (!dir.exists(dirName)) dir.create(dirName, recursive = T)
+    # create platform independent path
+    filePath = file.path(dirName, fileName)
+    write.csv( x = dataFrame, file = filePath, row.names = F)
+}

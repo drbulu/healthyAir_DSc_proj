@@ -3,7 +3,8 @@
 ## 01 - Create list of tables of URLs to access
 
 # i) import helper functions
-source("./01_Data_Prep/helpers/helpers-asthma_data_01-url_table_prep.R")
+helperParentDir = "./helper_scripts/01_data_prep/"
+source(file.path(helperParentDir, "helpers-asthma_data_01-url_table_prep.R"))
 
 # ii) create metadata tables of required URLS
 asthma_URL_table_list = asthma_helper_func_01$createAsthmaURLTables()
@@ -12,8 +13,7 @@ asthma_URL_table_list = asthma_helper_func_01$createAsthmaURLTables()
 rm(asthma_helper_func_01)
 
 ## 02 - Obtain the data relating to the contents of the URL tables in step 01
-
-source("./01_Data_Prep/helpers/helpers-asthma_data_02-url_data_prep.R")
+source(file.path(helperParentDir, "helpers-asthma_data_02-url_data_prep.R"))
 
 # get sets of data from the web using list of metadata tables!
 # simple wrapper function for convenience

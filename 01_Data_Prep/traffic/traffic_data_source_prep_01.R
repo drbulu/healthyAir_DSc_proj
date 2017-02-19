@@ -1,9 +1,10 @@
 #### Traffic Monitoring data: Data Preparation 1 ####
 
 ## 00 - Load required helper functions
-source("./01_Data_Prep/helpers/general_helpers_01.R")
-source("./01_Data_Prep/helpers/helpers-traffic_data_prep_01.R")
-source("./01_Data_Prep/helpers/helpers-traffic_data_prep_02.R")
+helperParentDir = "./helper_scripts/01_data_prep/"
+source(file.path(helperParentDir, "general_helpers_01.R"))
+source(file.path(helperParentDir, "helpers-traffic_data_prep_01.R"))
+source(file.path(helperParentDir, "helpers-traffic_data_prep_02.R"))
 
 ## 01 - Extract metadata information form data source
 

@@ -103,3 +103,26 @@ The structure of the original data set is not ammenable to this:
 
 
 The first solution is the function f(x) to process and transpose the data so that the Year information is extracted from the table names, and moved to its own column (variable). However, We have converted a dataset with approx 5321 rows and 27 cols, to one that has 22 rows and 5322 cols. This is slightly smaller and more useful, becasue years are in their own column
+
+```{r, eval=F}
+epaExpandTimeSeriesByID = function(epaDataSubset){
+    # expand column title into descriptor variables
+}
+epaReformatTimeSeriesData = function(epaData, byPollutant = T){
+    # expand column title into descriptor variables
+    # for a group of different columns, using the
+    # epaExpandTimeSeriesByID() function, then merge
+    # the data into a single output
+}
+```
+
+#### Comments about extra functionality
+These functions Expand the variables in the transposed data summary created
+during the data preparation phase of the EPA State summary dataset.
+These functiosn are NOT intended to process the ENTIRE dataset, but to prepare
+subsets of interest for exploratory analysis and other analyses. Basically,
+the functions, particularly:
+  epa_help_explore_01epaReformatTimeSeriesData()
+were slow when applied to the roughly 5200 variables in the transposed data set.
+Further, the datasets tended to be sparse due to missing values, presumably
+because (among other reasons) some pollutants were not emmitted by certain sources.
