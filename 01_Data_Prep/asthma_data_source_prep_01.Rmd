@@ -1,7 +1,8 @@
 ---
 output:
-  html_document:
+    html_document
 ---
+
 # Asthma Data Preparation I - Data Processing Strategy
 
 ## Introduction
@@ -185,8 +186,10 @@ Basically, one has to simply update the metadata table by adding data that can b
 
 ## Next Steps
 
-Use of web scraping tools such as [rvest](https://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/) in combination with the knowledge gained above to generate script(s) to acquire and process the data for further analysis. :smile:
+In order to carry out this strategy I would need to employ web scraping tools such as [rvest](https://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/) in combination with the knowledge gained above to generate script(s) to acquire and process the data for further analysis.
 
-future note: Need to check table footnotes for "surprises" :wink:!
+The [next section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) describes how I used the strategy described in this document to create the code needed to harvest the Asthma data from the URLs.
+
+<b style="color:red;">Future Note:</b> I also need to check the footnotes of each table in order to understand any caveats (i.e. "surprises" :wink:!) relating to the different datasets.
 
 <br/>

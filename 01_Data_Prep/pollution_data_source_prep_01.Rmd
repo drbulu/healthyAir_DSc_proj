@@ -1,6 +1,7 @@
----
 output:
-  html_document
+    html_document:
+        toc: true
+        toc_depth: 3
 ---
 # Pollution Data Preparation I - Data Processing Strategy
 
@@ -117,6 +118,7 @@ epaReformatTimeSeriesData = function(epaData, byPollutant = T){
 ```
 
 #### Comments about extra functionality
+
 These functions Expand the variables in the transposed data summary created
 during the data preparation phase of the EPA State summary dataset.
 These functiosn are NOT intended to process the ENTIRE dataset, but to prepare

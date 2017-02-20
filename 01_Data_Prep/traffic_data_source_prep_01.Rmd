@@ -1,54 +1,37 @@
 ---
 output:
-  html_document:
+    html_document
 ---
 # Traffic Data Preparation I
 
 ## Introduction
 
-Learned valuable lessons from the 
+I learned valuable lessons from the preparation of the Asthma dataset regarding both [strategy](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) and [implementation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) considerations.
 
 Traffic: https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm
 
-## Current Data: 2011 to 2014
+1. Current Data: 2011 to 2014
 
+* https://www.fhwa.dot.gov/<b style="color:red;">policyinformation/travel_monitoring/</b>16novtvt/16novtvt.xls
 
-https://www.fhwa.dot.gov/policyinformation/travel_monitoring/16novtvt/16novtvt.xls
+2. Older Data: 2003 to 2014
+
+* https://www.fhwa.dot.gov/ohim/tvtw/07dectvt/07dectvt.<b style="color:red;">xlsx</b>
+* https://www.fhwa.dot.gov/ohim/tvtw/06jantvt/jan<b style="color:red;">06</b>tvt.xls
+* https://www.fhwa.dot.gov/ohim/tvtw/03dectvt/03dectvt.xls
+* https://www.fhwa.dot.gov/ohim/tvtw/03jultvt/<b style="color:red;">03</b>jultvt.xls
+* https://www.fhwa.dot.gov/ohim/tvtw/03juntvt/tvtjun<b style="color:red;">03</b>.xls
+* https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan<b style="color:red;">02</b>.xls
+
+### Overview
 
 Basically, there are potentially too many quirks, and the tedium and error risk of 
 trying to manually process
 
-## Older Data: 2003 to 2014
-
-https://www.fhwa.dot.gov/ohim/tvtw/08dectvt/08dectvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/08jantvt/08jantvt.xls
-
-https://www.fhwa.dot.gov/ohim/tvtw/07dectvt/07dectvt.xlsx #
-https://www.fhwa.dot.gov/ohim/tvtw/07jantvt/07jantvt.xls
-
-https://www.fhwa.dot.gov/ohim/tvtw/06dectvt/06dectvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/06febtvt/06febtvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/06jantvt/jan06tvt.xls #
-
-https://www.fhwa.dot.gov/ohim/tvtw/05dectvt/05dectvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/05jantvt/05jantvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/04dectvt/04dectvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/04jantvt/04jantvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/03dectvt/03dectvt.xls
-https://www.fhwa.dot.gov/ohim/tvtw/03jultvt/03jultvt.xls
-
-## Next series
-https://www.fhwa.dot.gov/ohim/tvtw/03juntvt/tvtjun03.xls
-https://www.fhwa.dot.gov/ohim/tvtw/03jantvt/tvtjan03.xls
-https://www.fhwa.dot.gov/ohim/tvtw/02dectvt/tvtdec02.xls
-https://www.fhwa.dot.gov/ohim/tvtw/02juntvt/tvtjun02.xls
-https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan02.xls
-
-### Overview
 
 http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r
 
 
-##
+## 
 
 Benchmarking using proc.time(), revealed a much better performance using readxl functions over xlsx. Interestingly, processing of the lone xlsx file was faster once update performed!

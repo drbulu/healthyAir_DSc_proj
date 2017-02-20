@@ -1,12 +1,12 @@
 ---
 output:
-  html_document:
+  html_document
 ---
 # Asthma Data Preparation II - Data Processing Implementation
 
 ## Introduction
 
-The strategy document oulined a useful strategy toward the systematic harvesting and processing of the different tables that make up the asthma prevalence dataset that we wish to analyse. To this end, one of the main things that the strategy detailed was the logic by which the individual URLs, that each represent data tables, could be programmatically reconstructed. This is very important because it allows us to reproducibly obtain and analyse this fairly extensive dataset in a **rule-based** manner. This in turn provides the flexibility that is required to: 
+The [previous document](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) oulined a useful strategy toward the systematic harvesting and processing of the different tables that make up the asthma prevalence dataset that we wish to analyse. To this end, one of the main things that the strategy detailed was the logic by which the individual URLs, that each represent data tables, could be programmatically reconstructed. This is very important because it allows us to reproducibly obtain and analyse this fairly extensive dataset in a **rule-based** manner. This in turn provides the flexibility that is required to: 
 
 * integrate future datasets into this analysis as they become available.
 * import and process specific subsets of the data should the whole dataset not be needed.
@@ -43,11 +43,11 @@ asthma_helper_func_01$initAsthmaMetaData
 
     a. Core function for producing URLs from Current data archive
 
-asthma_helper_func_01$getCurrentAsthmaURL
+        asthma_helper_func_01$getCurrentAsthmaURL
 
     b. Core function for producing URLs from Archive data archive
 
-asthma_helper_func_01$getArchiveAsthmaURL
+        asthma_helper_func_01$getArchiveAsthmaURL
 
 4) Create a single URL metadata table
 
