@@ -35,20 +35,6 @@ Another strategy that we are going to use is that of function lists. Basically, 
 
 ## Phase I: Metadata preparation
 
-
-
-<!-- 
-    DESCRIBE STRATEGY - NOT DETAILS.. refer to scripts for that!
-
-Basically these sections should flow as follows:
-1. Strategy description: dot-point brief
-2. Brief reference to files responsible for strategy implementation
-
-In depth description can be confined to the relevant scripts
-
---->
-
-
 The first part of the process is metadata preparation. For the purposes of this section, metadata describes one or more tables (data.frames) that contain an organised set of URLs and related information. This is important because we are going to use this prepared metadata to systematically acquire the raw data that we will then process into our [tidy dataset](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html). Basically, the aim of this section is to create a family of functions to facilitate metadata preparation:
 
 1. Construct a metadata root (or core) table: 
@@ -95,7 +81,7 @@ In order to achieve our objective, we will develop the code according to the fol
 
 5. Save the tables to disk.
 
-### implementation Summary
+## implementation Summary
 
 The metadata preparation and data acquisition code relied heavily on "batch" functions that applied a small number of more specific functions over a range of groups or years. The code is organised so that the data processing scripts handle the batch processing of data, call a few "master" functions from the helper scripts, which themselves recruit other helpers upon which they have a [dependency](https://en.wikipedia.org/wiki/Coupling_(computer_programming)).
 

@@ -6,20 +6,17 @@ output:
 
 ## Introduction
 
-I learned valuable lessons from the preparation of the Asthma dataset regarding both [strategy](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) and [implementation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) considerations.
+I learned valuable lessons from the preparation of the Asthma dataset regarding both [strategy](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) and [implementation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) considerations. However, there were some important considerations when working out how to tackle the data processing challenge for this raw dataset. 
 
+The main page [here](https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm) contains a list of tables that each contain links to monthly traffic data over a number of years. The two basic groups of data listed on this page are: 
 
-There are potentially many ways of organising this part of the process, but the following workflow is relatively straightforward. Importantly, this phase separates the downloading (aquisition) of the data from the processing of the data into a tidy data format. The reason for this lies in the large number of files to be downloaded.
+1. **Older Data** (1970 to 2002): These are rather condensed summary data with a level of detail not sufficient for our purposes. Therefore, we will ignore this series.
 
-Traffic: https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm
+2. **Current Data** (2002 to 2014): Monthly data series of interest.
 
-
-1. Current Data: 2011 to 2014
+The set of URLs below represent some of the different forms that the data URLs of interest:
 
 * https://www.fhwa.dot.gov/<b style="color:red;">policyinformation/travel_monitoring/</b>16novtvt/16novtvt.xls
-
-2. Older Data: 2003 to 2014
-
 * https://www.fhwa.dot.gov/ohim/tvtw/07dectvt/07dectvt.<b style="color:red;">xlsx</b>
 * https://www.fhwa.dot.gov/ohim/tvtw/06jantvt/jan<b style="color:red;">06</b>tvt.xls
 * https://www.fhwa.dot.gov/ohim/tvtw/03dectvt/03dectvt.xls
@@ -27,15 +24,52 @@ Traffic: https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm
 * https://www.fhwa.dot.gov/ohim/tvtw/03juntvt/tvtjun<b style="color:red;">03</b>.xls
 * https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan<b style="color:red;">02</b>.xls
 
+The hope was to find, as we did in the Asthma data URLs, a useful pattern that we could exploit to programmatically reconstruct these URLs prior to file download and processing. The **&ast;.xls** (and &ast;.xlsx) files were the natural choice to download, given the availability of tools in R, such as xlsx and readxl, to perform data extraction from these files.
+
+However, as you can see above, there were numerous quirks, some of which could have proved difficult (certainly tedious) to resolve. This is in addition to the risks of manually trying to account for these apparently random deviations. For example:
+ * for no apparent reason, we have one (and only one as it turned out) xlsx file in the URL set.. what the ! :astonished:
+* more frustratingly, construction of the file names changes, seemingly without reason :scream: !
+
+Yeah... done with that :alien: ! I felt that this was enough of a mess that I had to rethink my strategy entirely... 
+
+The solution, directly extract the URLs from the table data elements and compile them into a metadata URL for subsequent download. This approach had the distinct beauty of avoiding the vaguaries of squeezing useful patterns out of the [non sequitur](https://en.wikipedia.org/wiki/Non_sequitur_(logic)) that is the traffic data URL structure logic.
+
 ### Overview
 
-Basically, there are potentially too many quirks, and the tedium and error risk of 
-trying to manually process
+1. Harvest links
 
+obtain links: [web scraping solution](http://stackoverflow.com/questions/31924546/rvest-table-scraping-including-links)
+prepare links so that they are valid
 
-http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r
+general helper ... broad utility of this function
 
+2. Download excel files
 
-## 
+There are potentially many ways of organising this part of the process, but the following workflow is relatively straightforward. Importantly, this phase separates the downloading (aquisition) of the data from the processing of the data into a tidy data format. The reason for this lies in the large number of files to be downloaded.
 
-Benchmarking using proc.time(), revealed a much better performance using readxl functions over xlsx. Interestingly, processing of the lone xlsx file was faster once update performed!
+[controlling loop execution](http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r)
+
+3. Create tidy dataset
+
+## Implementation
+
+general_helpers_01.R general helper script! for web scraping, file download and file IO. So good that they would be useful across the entire project.
+
+**traffic_data_source_prep_01.R** meta data preparation and file downloading. And file processing using the available metadata to create single tidy data table.
+
+**traffic_data_source_prep_01_test.R** --> testing "scrap book" to develop code in the helper functions.
+
+**helpers-traffic_data_prep_01.R**  helper01 - metadata prep and file download
+
+**helpers-traffic_data_prep_02.R**
+helper02 - excel file import and processing into tidy data... Note: Benchmarking using proc.time(), revealed a much better performance using readxl functions over xlsx. Interestingly, processing of the lone xlsx file was faster once update performed!
+
+## Next Steps
+
+Now that we have a tidy Asthma dataset, we will proceed to tackle the next dataset... [pollution](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/pollution_data_source_prep_01.Rmd) :wink:!
+
+## Updates:
+
+None so far :smile:
+
+<br/>

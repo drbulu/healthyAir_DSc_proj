@@ -7,10 +7,22 @@ output:
 
 ## Introduction
 
-By state (national is not helpful)
+### Chosen dataset
+
+Data set chosen was by state (national is not helpful)
 
 https://www.epa.gov/sites/production/files/2016-12/state_tier1_90-16.xls
 
+Compared to the [Asthma](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) and [Traffic](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/traffic_data_source_prep_01.Rmd) this challenge was arguably simpler.
+
+
+Note: readme sheet of the source data gives an interesting insight into data creation and possible issues. Major note, this data set fused from other data sources, and interpolation used to fill in gaps.
+    * Some definitions change over time, consequently, may need to fuse wild fires, prescribed fires and misc into FIRE_AND_MISC and combine the respective codes into a new identifier.
+    * There is extrapolation here (check README sheet of source file). 
+
+However, the granularity (detail level) is comparable to the other datasets that we aim to look at. In addition, a large number of interesting variables are also included. This, therefore, provides a good introduction to the potential value of this dataset while giving us a needed break from the data crunching grind.
+
+### Further challenges
 
 bigger challenge: There are many more data sources that would need aggregation, however, this seems excessive for our current purposes. If monthly granularity was critical for analysis, this archive is the place to visit. A lot of aggregation would be required to get a decent summary by state as outlined above. This maybe worth a look if initial analysis and modelling reveals the need for more specific information
 
@@ -45,16 +57,14 @@ http://www.tandfonline.com/doi/abs/10.1080/00039896.1967.10664708
 
 ## Strategy
 
+Thought about leaving the data as is. however, tidying the data would be useful in preparation for exploration... helps us to focus on the task at hand.
+
 Split data into two files: 
 
 * metadata
 * emissions_data
 
 ### Metadata
-
-Note: readme sheet of the source data gives an interesting insight into data creation and possible issues. Major note, this data set fused from other data sources, and interpolation used to fill in gaps. 
-
-Some definitions change over time, consequently, may need to fuse wild fires, prescribed fires and misc into FIRE_AND_MISC and combine the respective codes into a new identifier.
 
 3 Pairs of descriptors
 
@@ -117,7 +127,20 @@ epaReformatTimeSeriesData = function(epaData, byPollutant = T){
 }
 ```
 
+## Implementaion
+
+pollution_data_source_prep_01.R
+
+helpers - helpers-epa_data_prep_01.R
+
+
+
 #### Comments about extra functionality
+
+extra functionality: helpers-epa_data_explore_01.R
+
+born from an attempt to further process the transformed data table
+
 
 These functions Expand the variables in the transposed data summary created
 during the data preparation phase of the EPA State summary dataset.
