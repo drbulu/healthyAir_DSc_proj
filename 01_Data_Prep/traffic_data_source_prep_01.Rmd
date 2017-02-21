@@ -8,7 +8,11 @@ output:
 
 I learned valuable lessons from the preparation of the Asthma dataset regarding both [strategy](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) and [implementation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) considerations.
 
+
+There are potentially many ways of organising this part of the process, but the following workflow is relatively straightforward. Importantly, this phase separates the downloading (aquisition) of the data from the processing of the data into a tidy data format. The reason for this lies in the large number of files to be downloaded.
+
 Traffic: https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm
+
 
 1. Current Data: 2011 to 2014
 

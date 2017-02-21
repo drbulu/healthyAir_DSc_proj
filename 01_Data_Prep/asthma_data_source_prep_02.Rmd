@@ -6,10 +6,16 @@ output:
 
 ## Introduction
 
+### Background
+
 The [previous document](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) oulined a useful strategy toward the systematic harvesting and processing of the different tables that make up the asthma prevalence dataset that we wish to analyse. To this end, one of the main things that the strategy detailed was the logic by which the individual URLs, that each represent data tables, could be programmatically reconstructed. This is very important because it allows us to reproducibly obtain and analyse this fairly extensive dataset in a **rule-based** manner. This in turn provides the flexibility that is required to: 
 
 * integrate future datasets into this analysis as they become available.
 * import and process specific subsets of the data should the whole dataset not be needed.
+
+### Code organisation
+
+#### Scripts
 
 Given the number of functions that would be required to design a data processing framework that makes the strategy easy to follow, and therefore to debug, we will be relying on a combination of two types of scripts:
 
@@ -17,6 +23,8 @@ Given the number of functions that would be required to design a data processing
 * **Helper scripts:** A set of scripts that contain distinct parts of the functionality needed to perform a set of tasks. These helpers are called upon by **analysis scripts** where needed, in order to make the logic that drives analysis scripts cleaner and easier to follow and manage. The contents of a helper script contains generalised functionality that can be made easily available to muliple **analysis scripts**. 
     * Generalised functionality are basically common functions that perform routine tasks that often need to be performed in multiple scripts. 
     * Helper script files help to improve code (and functionality) reusability and management.
+
+#### Function lists
 
 Another strategy that we are going to use is that of function lists. Basically, storing the helper functions within a list object is quite useful because it:
 
@@ -27,87 +35,90 @@ Another strategy that we are going to use is that of function lists. Basically, 
 
 ## Phase I: Metadata preparation
 
-The first part of the process is metadata preparation. For the purposes of this section, metadata describes one or more tables (data.frames) that contain an organised set of URLs and related information.
 
-The aim of this section is to create a family of functions to facilitate metadata preparation. 
 
-1) helper function list
+<!-- 
+    DESCRIBE STRATEGY - NOT DETAILS.. refer to scripts for that!
 
-asthma_helper_func_01 = list()
+Basically these sections should flow as follows:
+1. Strategy description: dot-point brief
+2. Brief reference to files responsible for strategy implementation
 
-2) Metadata table generation 
+In depth description can be confined to the relevant scripts
 
-asthma_helper_func_01$initAsthmaMetaData
+--->
 
-3) Systematic construction URLs from metadata components
 
-    a. Core function for producing URLs from Current data archive
+The first part of the process is metadata preparation. For the purposes of this section, metadata describes one or more tables (data.frames) that contain an organised set of URLs and related information. This is important because we are going to use this prepared metadata to systematically acquire the raw data that we will then process into our [tidy dataset](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html). Basically, the aim of this section is to create a family of functions to facilitate metadata preparation:
 
-        asthma_helper_func_01$getCurrentAsthmaURL
+1. Construct a metadata root (or core) table: 
 
-    b. Core function for producing URLs from Archive data archive
+Such a table would provide the essential information needed to construct all of the different <u>combinations</u> of URLs that need to be constructed for each year of interest. The following table, which is an extension of the one in [this section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd#demographic-attributes), was constructed from analysis of the different tables and meta information about these tables:
 
-        asthma_helper_func_01$getArchiveAsthmaURL
+| demographic     | demID | hasChildData |
+|-----------------|-------|--------------|
+| Overall         | 1     | Y            |
+| Gender          | 21    | Y            |
+| Age             | 3     | Y            |
+| Ethnicity       | 5     | Y            |
+| Education       | 6     | N            |
+| Income          | 7     | N            |
 
-4) Create a single URL metadata table
+* the **demographic** and **demID** columns relate to a specific attribute and the associated ID that is used to represent it in the URL table name.
+* the **hasChildData** column indicates whether data for a particular demographic is available for the "Child" data group. All data was available for the "Adult" group.
 
-Make a data frame to make data organisation more simple and useful :)
-This is MUCH better than getting a large number of lists and/or vectors
-also means that I can inject fewer variables into the equation :)
-This function gets the tables for ONE specific demographic (demID) for
-all of the years specified in yearSeries for the chosen subset (isAdultData)
-
-asthma_helper_func_01$prepAsthmaYearURLsByID
-
-5) Create a list of URL data tables based on input information: 
-
-Designed to obtain
-both adult and child data from the default metadata table for ease of use by 
-abstraction of underlying details. User needs to call this function without
-arguments to get all the data. The "endYear" variable can be used to change the 
-recency of the data collected to restrict data series size or to include future data
-as required. Further refinements could be made, but it should suffice to keep this 
-function relatively simple to avoid unecessary complexity and resulting logical error.
-
-asthma_helper_func_01$createAsthmaURLTables()
-
-Functionality stored in the helper file: **helpers-asthma_data_01-url_table_prep.R**.
+2. Create functions to construct valid individual URLs for a particular year from the core metadata table based on whether the data of the URL pertains to:
+        * either the Adult or Child group
+        * either the current or archive data series
+        * current or lifetime asthma prevalence
+    
+3. Construct functions to create tables of URLs based on the individual URL creation files. These tables are organised into a single large list for efficiency.
 
 ## Phase II: Data processing from metadata
 
-There are many ways of organising this, but the following workflow
+There are potentially many ways of organising this part of the process, but the following workflow is relatively straightforward. We could approach this part of the process in one of two basic ways:
 
-Functionality required:
+* We could first obtain the raw data and store it as relatively raw tables to disk in a simple format, such as [CSV](https://en.wikipedia.org/wiki/Comma-separated_values). The raw data files could then be imported back into the data analysis framework, R in this case, for further processing. 
+* We could extract and process the tablular data from the URLs sequentially without file download.
 
-1) Obtain a single data table from HTML source code -->
-2) Obtain a list of data tables from a single URL metadata table
-3) Proces each list of data tables to create a single _data series_
-    data series: a combination of a group and demographic subgroup.
-    e.g. Adult (group) / Income (demographic subgroup)
-    optional: save the list of tables to disc.
-4) Combine as set of data series into a single master list.
-    optional: get the tables form disc
-5) Save the tables to disc
+We will be pursuing the first approach as the total data acquired was substantial, but not unmanageable in memory. However, the first approach is still a good idea, and one that we could explore later. 
 
-Functionality stored in the helper file: **helpers-asthma_data_02-url_data_prep.R**.
+In order to achieve our objective, we will develop the code according to the following outline:
 
-<b style="color:red;">Note:</b> Needed to run test script to develop and refine table cleaning functinality. **asthma_data_source_prep_test_01.R**.
+1. Obtain a single data table from HTML source code.
 
-<b style="color:red;">Note 2:</b> The validated data processing script: **asthma_data_source_prep_01.R**.
+2. Obtain a list of data tables from a single URL metadata table.
 
-### Note:
-Data can be saved to disc as simple plain text CSV or tab delimeted tables, or as Excel spreadsheets. pros and cons.
+3. Proces each list of data tables to create a single _data series_ data series: a combination of a group and demographic subgroup. e.g. Adult (group) / Income (demographic subgroup). <b style="color:blue;">optional:</b> save the raw tables to disk.
+
+4. Combine as set of data series into a single master list. <b style="color:blue;">optional:</b> get the raw tables form disk.
+
+5. Save the tables to disk.
+
+### implementation Summary
+
+The metadata preparation and data acquisition code relied heavily on "batch" functions that applied a small number of more specific functions over a range of groups or years. The code is organised so that the data processing scripts handle the batch processing of data, call a few "master" functions from the helper scripts, which themselves recruit other helpers upon which they have a [dependency](https://en.wikipedia.org/wiki/Coupling_(computer_programming)).
+
+The code that supports the preparation of the Asthma dataset are as follows:
+
+1. Data processing code: **asthma_data_source_prep_01.R**
+
+2. Phase 1: Functionality stored in the helper file: **helpers-asthma_data_01-url_table_prep.R**.
+
+3. Phase 2: Functionality stored in the helper file: **helpers-asthma_data_02-url_data_prep.R**.
+
+4. Optional code: Helpful for developlment
+
+* Prototyping test script: **asthma_data_source_prep_test_01.R**. Very rough, slightly repetitive "scrap book" to help develop the Phase 2 data processing code.
+
+* **helpers-asthma_data_02b-url_data_test.R**: contains one useful function for obtaining subsets of URL tables for debugging purposes.
 
 ## Next Steps
 
-## Implemenation
+Now that we have a tidy Asthma dataset, we will proceed to tackle the next dataset... [traffic](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/traffic_data_source_prep_01.Rmd) :wink:!
 
-asthma_data_source_prep_01.R (method 1: sequential data processing)
+## Updates:
 
-asthma_data_source_prep_02.R (method 2: now with file IO)
-
-Use of web scraping tools such as [rvest](https://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/) in combination with the knowledge gained above to generate script(s) to acquire and process the data for further analysis. :smile:
-
-future note: Need to check table footnotes for "surprises" :wink:!
+None so far :smile:
 
 <br/>
