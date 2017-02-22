@@ -3,59 +3,57 @@ title: "Pollution Data Preparation - Strategy and Implementation"
 output:
   html_document:
     toc: true
-    toc_depth: 3
-    toc_float: true
+    toc_depth: 4
 ---
 
 ## Introduction
 
 ### Chosen dataset
 
-Data set chosen was by state (national is not helpful)
+The [selected dataset](https://www.epa.gov/sites/production/files/2016-12/state_tier1_90-16.xls) contained an annual summary of of a number of pollutants by source, pollutant time and state. This dataset was obtained from the [Air Pollutant Emissions Trends page](https://www.epa.gov/air-emissions-inventories/air-pollutant-emissions-trends-data), which also hosted a similar dataset which contained aggregated national figures by source and pollutant. The national dataset covered a longer timeframe but was much less useful because we need state level data in order to integrate pollution data with the asthma and traffic datasets.
 
-https://www.epa.gov/sites/production/files/2016-12/state_tier1_90-16.xls
+Therefore, compared to the [Asthma](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) and [Traffic](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/traffic_data_source_prep_01.Rmd) this challenge was arguably simpler. However, it is important to keep in mind that this dataset has undergone what appears to be a substantial amount of preparation. This was determined by looking at the README excel sheet in the selected state-level dataset which described how the dataset was prepared. Some things to note are:
 
-Compared to the [Asthma](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) and [Traffic](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/traffic_data_source_prep_01.Rmd) this challenge was arguably simpler.
+* This data set was fused from other data sources, as described, and interpolation was used to fill in data availability gaps from years where no source data was available.
 
+* Some definitions change over time and some level of recalculation was required to standardise some values. For example, we may want to merge the "wild fires"", "prescribed fires"" and "misc" variables into a new FIRE_AND_MISC variable, creating a new identifier from the combination of the respective codes.
 
-Note: readme sheet of the source data gives an interesting insight into data creation and possible issues. Major note, this data set fused from other data sources, and interpolation used to fill in gaps.
-    * Some definitions change over time, consequently, may need to fuse wild fires, prescribed fires and misc into FIRE_AND_MISC and combine the respective codes into a new identifier.
-    * There is extrapolation here (check README sheet of source file). 
+This is probably one of the reasons why this datset is described as ["trend level data"](https://www.epa.gov/air-emissions-inventories/pollutant-emissions-summary-files-earlier-neis).
 
-However, the granularity (detail level) is comparable to the other datasets that we aim to look at. In addition, a large number of interesting variables are also included. This, therefore, provides a good introduction to the potential value of this dataset while giving us a needed break from the data crunching grind.
+However, as mentioned before, the granularity (detail level) is comparable to the other datasets that we aim to look at. In addition, a large number of interesting variables are also included. This, therefore, provides a good introduction to the potential value of this dataset while giving us a needed break from the data crunching grind :scream:.
 
-### Further challenges
+### Further data sources
 
-bigger challenge: There are many more data sources that would need aggregation, however, this seems excessive for our current purposes. If monthly granularity was critical for analysis, this archive is the place to visit. A lot of aggregation would be required to get a decent summary by state as outlined above. This maybe worth a look if initial analysis and modelling reveals the need for more specific information
+#### EPA Pre-Generated Data Files
 
+The section of [Pre-Generated Data Files](https://aqsdr1.epa.gov/aqsweb/aqstmp/airdata/download_files.html) contains some potentially interesting additional data. In particular, the meterological and particulate data in the [daily section](https://aqsdr1.epa.gov/aqsweb/aqstmp/airdata/download_files.html#Daily), and the daily Particulates datasets may be worthwhile investigating as [weather](http://www.abc.net.au/news/2016-11-22/two-die-in-thunderstorm-asthma-emergency-in-melbourne/8044558) and [particulates](http://www.tandfonline.com/doi/abs/10.1080/00039896.1993.9938391) may be linked to respiratory health.
 
-https://aqsdr1.epa.gov/aqsweb/aqstmp/airdata/download_files.html
+There is a description of the meaning behind the [wind-related variables](https://www.epa.gov/aqs/aqs-wind-speed-and-direction-parameter-change) for reference. If monthly granularity was critical for analysis or if meterological information was required, this archive is a good place to visit. However, a lot of aggregation would be required to get a decent summary by state as outlined above. This maybe worth a look if initial analysis and modelling reveals the need for more specific, or additional information.
 
-https://www.epa.gov/aqs/aqs-wind-speed-and-direction-parameter-change
+#### Comprehensive meterological data
 
-more detailed wind data source. Also includes many other parameters lots of data available via FTP, potentially useful, but 
- 
-https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/automated-surface-observing-system-asos
-https://www.ncdc.noaa.gov/data-access/land-based-station-data
+Precipitation data was oddly absent from the Pre-Generated Data Files. However, there is some [weather station](https://www.ncdc.noaa.gov/data-access/land-based-station-data) data that might be useful. The datasets appear to be both rich and raw, including many other parameters, and data is available via FTP with [metadata descriptions](ftp://ftp.ncdc.noaa.gov/pub/data/asos-fivemin/td6401-1.txt). The weather station data potentially useful, but its processing would need to be motivated by a rather compelling reason, given the apparent complexity of the task at hand. 
 
-ftp://ftp.ncdc.noaa.gov/pub/data/asos-fivemin/td6401-1.txt
+There also exists other information on [storm events](https://www.ncdc.noaa.gov/stormevents/ftp.jsp) and [hourly precipitation](ftp://ftp.ncdc.noaa.gov/pub/data/hourly_precip-3240/readme.txt).
 
+Lastly, another potentially interesting, comprehensive data source is the [Integrated Surface Database](https://www.ncdc.noaa.gov/isd/data-access) (ISD) [ftp data source] (ftp://ftp.ncdc.noaa.gov/pub/data/noaa/) with a [readme](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/readme.txt), [detailed metadata](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/ish-format-document.pdf) that seems to match individual datasets, [country list](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/country-list.txt), [data description](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/ish-abbreviated.txt)
+and a file that appears to contain a [list](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.txt) of weather stations. There is is even a [lite-version](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-lite/) that appears to be more user friendly, and thus appealing, dataset according to the [formatting](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-lite/isd-lite-format.txt) and [technical](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-lite/isd-lite-technical-document.txt) documentation. Of all the data source alternatives, this seems to be a good one :triumph: :joy:! 
 
-However, there is some potentially interesting meterological data in the daily section for future use, and the daily Particulates datasets may be worthwhile investigating as they may be linked to respiratory 
+Basically, there are many more data sources that that could provide more information dimensions to the data that we have obtained thus far. However, these would need further aggregation that would seem excessive for our current purposes.
 
-http://www.abc.net.au/news/2016-11-22/two-die-in-thunderstorm-asthma-emergency-in-melbourne/8044558 
+That said, there is a tutorial for how to process the ISD data [here](http://blue.for.msu.edu/lab-notes/NOAA_0.1-1/NOAA-ws-data.pdf), and one at [r-bloggers](https://www.r-bloggers.com/parse-noaa-integrated-surface-data-files/). Encouragingly, a couple of packages exist that appear to be devoted to analysis of this data include [rnoaa](https://cran.rstudio.com/web/packages/rnoaa/), [isdparser](https://cran.rstudio.com/web/packages/isdparser/).
 
-* particulates vs respiratory health
+#### Potential additional data candidates
 
-http://europepmc.org/abstract/med/7492903
+Overall, the following data sources seem to be most useful to keep in mind when looking to expand the data analysis in future:
 
-http://www.tandfonline.com/doi/abs/10.1080/00039896.1993.9938391
+* Pre-Generated Data Files: [Daily](https://aqsdr1.epa.gov/aqsweb/aqstmp/airdata/download_files.html#Daily) pollution and partial meterological information (rainfall missing)
 
-* economic status
+* Integrated Surface Database (particularly **ISD-lite**): comprehensive basic [meterological](ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-lite/) information.
 
-http://www.tandfonline.com/doi/abs/10.1080/00039896.1967.10664708
+* Storm events (if not covered in ISD database): metadata [here](ftp://ftp.ncdc.noaa.gov/pub/data/swdi/stormevents/csvfiles/ugc_areas.csv).
 
-
+Upon reflection, the weather data probably deserves its own section (if not project).
 
 ## Strategy
 

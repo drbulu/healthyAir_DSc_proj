@@ -3,8 +3,7 @@ title: "Traffic Data Preparation - Strategy and Implementation"
 output:
   html_document:
     toc: true
-    toc_depth: 3
-    toc_float: true
+    toc_depth: 4
 --- 
 
 ## Introduction
@@ -37,41 +36,37 @@ However, as you can see above, there were numerous quirks, some of which could h
 
 Yeah... done with that :alien: ! I felt that this was enough of a mess that I had to rethink my strategy entirely... 
 
-The solution, directly extract the URLs from the table data elements and compile them into a metadata URL for subsequent download. This approach had the distinct beauty of avoiding the vaguaries of squeezing useful patterns out of the [non sequitur](https://en.wikipedia.org/wiki/Non_sequitur_(logic)) that is the traffic data URL structure logic.
+The solution? Directly extract the URLs from the table data elements and compile them into a metadata URL for subsequent download. This approach had the distinct beauty of avoiding the vaguaries of squeezing useful patterns out of the [non sequitur](https://en.wikipedia.org/wiki/Non_sequitur_(logic)) that is the traffic data URL structure logic.
 
-### Overview
-
-1. Harvest links
-
-obtain links: [web scraping solution](http://stackoverflow.com/questions/31924546/rvest-table-scraping-including-links)
-prepare links so that they are valid
-
-general helper ... broad utility of this function
-
-2. Download excel files
+## Strategy
 
 There are potentially many ways of organising this part of the process, but the following workflow is relatively straightforward. Importantly, this phase separates the downloading (aquisition) of the data from the processing of the data into a tidy data format. The reason for this lies in the large number of files to be downloaded.
 
-[controlling loop execution](http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r)
+1. Harvest links: The first task was to try to obtain all of the links directly from the [main page](https://www.fhwa.dot.gov/policyinformation/travel_monitoring/tvt.cfm) so that they could be cleaned and organised into one or more metadata table of URLs. The solution that I went with to obtain all the links information was [this one](http://stackoverflow.com/questions/31924546/rvest-table-scraping-including-links). 
 
-3. Create tidy dataset
+2. Download excel files: For this part of the process, the links were prepared to validate them as some URLs were malformed during the web scraping process. Then the cleaned URLs were downloaded to a specified directory for further processing.
+
+* One consideration was the control of loop execution timing by [introducing a delay](http://stackoverflow.com/questions/1174799/how-to-make-execution-pause-sleep-wait-for-x-seconds-in-r). The reason was to have a means of controlling file download frequency, knowing that some data providers aren't keen on being hammered by multiple requests from a single source. In this case there was no problem, but it is a good strategy to bear in mind. 
+
+* Another consideration was to check for the existence of a file in the event that the script needs to be rerun. In future it would be potentially useful to allow files to be overwritten. However, deleting the offending files was sufficient.
+
+3. Create tidy dataset: Obtain the downloaded files and process them into a single master file to be saved in an output folder.
 
 ## Implementation
 
-general_helpers_01.R general helper script! for web scraping, file download and file IO. So good that they would be useful across the entire project.
+**traffic_data_source_prep_01.R**: Data processin script for metadata preparation and file manipulation. This script was responsible for processing input files using the available metadata to create single tidy data table that was downloaded to disc.
 
-**traffic_data_source_prep_01.R** meta data preparation and file downloading. And file processing using the available metadata to create single tidy data table.
+**general_helpers_01.R**: This useful script contained helpful functions to perform web scraping, file download and file I/O. These functions were deemed so generally useful that they would be useful across the entire project. Therefore, the creation of a general helper enabled this functionality to be easily called and added to.
 
-**traffic_data_source_prep_01_test.R** --> testing "scrap book" to develop code in the helper functions.
+**helpers-traffic_data_prep_01.R**: helper script for provide functinality for metadata preparation and file download.
 
-**helpers-traffic_data_prep_01.R**  helper01 - metadata prep and file download
+**helpers-traffic_data_prep_02.R**: helper script to handle excel file import and processing into tidy data. I did some basic benchmarking using proc.time() (as discussed [here](http://stackoverflow.com/questions/6262203/#17802487) for example). This revealed that there was much better performance using [readxl](https://cran.r-project.org/web/packages/readxl/index.html) functions over [xlsx](https://cran.r-project.org/web/packages/xlsx/index.html) for reading the downloaded files into R. Interestingly, processing of the lone xlsx file was faster once this update was performed! Previously, there was a noticable stall when that file was processed. Printing progress to the console using cat() was very useful for progress analysis and debugging. For more one benchmarking there are packages such as [microbenchmark](https://cran.r-project.org/web/packages/microbenchmark/index.html) and [rbenchmark](https://cran.r-project.org/web/packages/rbenchmark/) would be interesting to explore in future.
 
-**helpers-traffic_data_prep_02.R**
-helper02 - excel file import and processing into tidy data... Note: Benchmarking using proc.time(), revealed a much better performance using readxl functions over xlsx. Interestingly, processing of the lone xlsx file was faster once update performed!
+**traffic_data_source_prep_01_test.R**: This version of the traffic data preparation script was used as a testing "scrap book" to develop code in the helper functions. It is a bit messy and repetitive, but instrumental in working through the various teething problems and optiomisations required to create the final script.
 
 ## Next Steps
 
-Now that we have a tidy Asthma dataset, we will proceed to tackle the next dataset... [pollution](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/pollution_data_source_prep_01.Rmd) :wink:!
+Now that we have a tidy Traffic dataset, the next task was to tackle the processing of the [pollution](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/pollution_data_source_prep_01.Rmd) dataset :wink:!
 
 ## Updates:
 
