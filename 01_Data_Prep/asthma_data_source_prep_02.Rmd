@@ -1,8 +1,11 @@
 ---
+title: "Asthma Data Preparation II - Data Processing Implementation"
 output:
-  html_document
----
-# Asthma Data Preparation II - Data Processing Implementation
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---    
 
 ## Introduction
 

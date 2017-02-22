@@ -1,9 +1,11 @@
 ---
+title: "Asthma Data Preparation I - Data Processing Strategy"
 output:
-    html_document
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
 ---
-
-# Asthma Data Preparation I - Data Processing Strategy
 
 ## Introduction
 
@@ -26,14 +28,16 @@ Therefore, it is a good idea to get multiple tables from multiple years, to repr
 
 Looking at the data pertaining to this period of time, we notice that the base URL is:
 
-**https://www.cdc.gov/asthma/brfss/**
+<pre><b>https://www.cdc.gov/asthma/brfss/</b></pre>
 
 The next component of the table is the **year** segment, followed by some sort of table designation:
 
 Example: 
 
+<pre>
 * 2014 Adult Lifetime Asthma by Age: https://www.cdc.gov/asthma/brfss/2014/tableL3.htm
 * 2014 Child Lifetime Asthma by Age: https://www.cdc.gov/asthma/brfss/2014/child/tableL3.htm
+</pre>
 
 Now, the first issue is that the adult and child tables have an important difference in the **child** segment of the URL, which is important to keep in mind.
 
@@ -68,13 +72,17 @@ Basically, these definitions equate to:
 
 Now that we have this background, lets get back to the table URLs. From the examples above, using 2014, we can generalise these "base" URL segments:
 
-* 2014 Adult: https://www.cdc.gov/asthma/brfss/**2014**/ ...
-* 2014 Child: https://www.cdc.gov/asthma/brfss/**2014**/child/ ...
+<pre>
+* 2014 Adult: https://www.cdc.gov/asthma/brfss/<b>2014</b>/ ...
+* 2014 Child: https://www.cdc.gov/asthma/brfss/<b>2014</b>/child/ ...
+</pre>
 
 to the following: 
 
-* base Adult: https://www.cdc.gov/asthma/brfss/**yearID**/ ...
-* base Child: https://www.cdc.gov/asthma/brfss/**yearID**/child/ ...
+<pre>
+* base Adult: https://www.cdc.gov/asthma/brfss/<b>yearID</b>/ ...
+* base Child: https://www.cdc.gov/asthma/brfss/<b>yearID</b>/child/ ...
+</pre>
 
 Basically, **yearID** is a placeholder for any year between 2011 and 2014 (inclusive).
 
@@ -121,21 +129,24 @@ This brings up an interesting decision. The adult dataset seems valid from 1999 
 The links below highlight the main differences and similarities between the archive URLs, which can be further compared to the more recent data.
 
 ### 2010
-https://www.cdc.gov/asthma/brfss/2010/lifetime/tableL3.htm
 
+<pre>
+https://www.cdc.gov/asthma/brfss/2010/lifetime/tableL3.htm
 https://www.cdc.gov/asthma/brfss/2010/child/lifetime/tableL3.htm
 
 https://www.cdc.gov/asthma/brfss/2010/current/tableC3.htm
-
 https://www.cdc.gov/asthma/brfss/2010/child/current/tableC3.htm
+</pre>
 
 ### 1999 to 2009
 
+<pre>
 https://www.cdc.gov/asthma/brfss/09/lifetime/tableL3.htm
 
 https://www.cdc.gov/asthma/brfss/09/current/tableC3.htm
 
 https://www.cdc.gov/asthma/brfss/05/child/current/tableC3.htm
+</pre>
 
 * The first thing to note is that the asthma recency and demographic data type designations are identical to those in the "current dataset". This is good because we can use the same table to automate data import.
 

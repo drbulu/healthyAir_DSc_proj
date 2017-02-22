@@ -1,9 +1,11 @@
-output:
-    html_document:
-        toc: true
-        toc_depth: 3
 ---
-# Pollution Data Preparation I - Data Processing Strategy
+title: "Pollution Data Preparation - Strategy and Implementation"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
 
 ## Introduction
 

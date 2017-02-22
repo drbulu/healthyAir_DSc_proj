@@ -1,8 +1,11 @@
 ---
+title: "Traffic Data Preparation - Strategy and Implementation"
 output:
-    html_document
----
-# Traffic Data Preparation I
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+--- 
 
 ## Introduction
 
@@ -16,6 +19,7 @@ The main page [here](https://www.fhwa.dot.gov/policyinformation/travel_monitorin
 
 The set of URLs below represent some of the different forms that the data URLs of interest:
 
+<pre>
 * https://www.fhwa.dot.gov/<b style="color:red;">policyinformation/travel_monitoring/</b>16novtvt/16novtvt.xls
 * https://www.fhwa.dot.gov/ohim/tvtw/07dectvt/07dectvt.<b style="color:red;">xlsx</b>
 * https://www.fhwa.dot.gov/ohim/tvtw/06jantvt/jan<b style="color:red;">06</b>tvt.xls
@@ -23,6 +27,7 @@ The set of URLs below represent some of the different forms that the data URLs o
 * https://www.fhwa.dot.gov/ohim/tvtw/03jultvt/<b style="color:red;">03</b>jultvt.xls
 * https://www.fhwa.dot.gov/ohim/tvtw/03juntvt/tvtjun<b style="color:red;">03</b>.xls
 * https://www.fhwa.dot.gov/ohim/tvtw/02jantvt/tvtjan<b style="color:red;">02</b>.xls
+</pre>
 
 The hope was to find, as we did in the Asthma data URLs, a useful pattern that we could exploit to programmatically reconstruct these URLs prior to file download and processing. The **&ast;.xls** (and &ast;.xlsx) files were the natural choice to download, given the availability of tools in R, such as xlsx and readxl, to perform data extraction from these files.
 
