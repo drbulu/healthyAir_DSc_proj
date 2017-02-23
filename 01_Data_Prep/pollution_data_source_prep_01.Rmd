@@ -1,5 +1,5 @@
 ---
-title: "Pollution Data Preparation - Strategy and Implementation"
+title: "Pollution Data Preparation: Strategy and Implementation"
 output:
   html_document:
     toc: true
@@ -57,97 +57,97 @@ Upon reflection, the weather data probably deserves its own section (if not proj
 
 ## Strategy
 
-Thought about leaving the data as is. however, tidying the data would be useful in preparation for exploration... helps us to focus on the task at hand.
+Initially, I had thought about leaving the pollution dataset as is. However, I reconsidered on the basis that I wouldn't want to be transfoming the dataset very much (if at all) while trying to explore, model or visualise the dataset. Basically, th helps us to focus on the task at hand.
 
-Split data into two files: 
+Inspection of the data gave me the idea to Split source data table into two files: 
 
-* metadata
-* emissions_data
+* Emissions Data: the main dataset, containing: 
+    * the emissions measurements for all the different pollutants of interest.
+    * unique columns named by an ecoded combination of location (state), source (tier_1 code) and pollutant
 
-### Metadata
+* metadata: contains a condensed set of unique entries that contains
+    * item codes: shared with the main dataset
+    * item names: complete description of the entities represented by the item codes
+    * type descriptor: a description that enables multiple groups of metadata to be described and stored efficiently in a single table.
 
-3 Pairs of descriptors
+### Metadata preparation
 
-Source location metadata <!-- use proper HTML tables and set width = 50% -->
+The groups used to describe the main dataset are Location (state), pollutant and pollution source. Therefore, if we want to crreate metadata tables, we find ourselves with three separate tables consisting of pairs of columns. These tables represent information that describes the dataset that we want to preserve for future use in analyses where we can recombine it with the main dataset in order to describe (annotate) it. The structure of the metadata tables is described as follows:
 
-| State | FIPS_CODE |
-|-------|------|
-| AL | 01 |
+1. Source location metadata 
 
-Pollutant type metadata
+<!-- Used traditional HTML tables with custom CSS formatting. -->
+<style>.meta-example-a{width:20%; text-align:center;} .meta-example-b{width:50%}</style>
 
-| Pollutant | Unit |
-|-------|------|
-| NOX | 1000 tons |
+<table class="meta-example-a">
+<tr><th>State</th><th>FIPS_CODE</th><tr>
+<tr><td>AL</td><td>01</td><tr>
+</table>
+<br/>
 
-Pollution sources metadata
+2. Pollutant type metadata
 
-| Source | Tier1_CODE |
-|-------|------|
-| AL | 01 |
+<table class="meta-example-a">
+<tr><th>Pollutant</th><th>Unit</th><tr>
+<tr><td>NOX</td><td>1000 tons</td><tr>
+</table>
+<br/>
 
-Using the above examples:
+3. Pollution sources metadata
 
-| Type  | Entity | Desc |
-|-------|--------|-------|
-| State | AL     | FIPS_CODE=01 |
-| Pollutant | NOX     | unit=1000 tons |
-| Source | 01 | FUEL COMB. ELEC. UTIL. |
+<table class="meta-example-a">
+<tr><th>Source</th><th>Tier1_CODE</th><tr>
+<tr><td>AL</td><td>01</td><tr>
+</table>
+<br/>
 
-This summary metadata effectively condenses the accessory information to a more understand and simplified form. 
+From the above examples, we can construct a "master" metadata table to compress the essential descriptive information about the dataset into a single, neat table such as the one below:
 
-This also has a number of important benefits:
+<table class="meta-example-b">
+<tr><th>Type</th><th>Entity</th><th>Desc</th><tr>
+<tr><td>State</td><td>AL</td><td>FIPS_CODE=01</td><tr>
+<tr><td>Pollutant</td><td>NOX</td><td>unit=1000 tons</td><tr>
+<tr><td>Source</td><td>02</td><td>FUEL COMB. ELEC. UTIL.</td><tr>
+</table>
+<br/>
 
-1) Reduces the amount of redundancy in the main data table, thus making the overall file size smaller, even though we have 2 files instead of one.
+<style>.meta-example{width:50%}</style>
 
-2) Allows the remaining information to be transposed into a tidy data format ammenable for use in steps such as visulisation using **ggplot2**.
+This summary metadata effectively condenses the accessory information to a more understand and simplified form, and has some important benefits:
 
-column names become concatenated metadata codes e.g. STATE.SOURCE.Pollutant, which would be represented for example as AL.01.NOX using the sample tables above. 
+1. Reduces the amount of redundancy in the main data table, thus making the overall file size smaller, even though we have 2 files instead of one.
 
-* care take to make sure these resulting column names are legal
+2. Allows the remaining information to be transposed into a tidy data format ammenable for use in steps such as visulisation using **ggplot2**.
+
+### Main Data Preparation
+
+As a result of the metadata preparation, column names can now be concatenated to be represented as metadata codes, e.g. **STATE.SOURCE.Pollutant**, which would be represented for example as **AL.01.NOX** derived from the sample table above. 
+
+* care needs to be taken to make sure these resulting column names are legal
 * can then use the metadata table to link the relevant abbreviations in the main data to additional related information.
 
+Initially, processing requirements for this data set appeared simple. This was due to the fairly processed nature of the dataset. However, the need to prepare each dataset to minimise the need for data manipulation in downstream exploration and analysis complicated things.
 
-Initially, processing requirements for this data set appeared simple on face value. This was due to the fairly processed nature of the dataset. However, the need to prepare each dataset to minimise the need for data manipulation in downstream exploration and analysis complicated things.
+The structure of the original data set is not ammenable to this. Therefore, we would need to transpose the data so that the **Year** information is extracted from the table names, and moved to its own column (variable). However, We have converted a dataset with approx 5321 rows and 27 cols, to one that has 22 rows and 5322 cols. This is slightly smaller and more useful, becasue years are in their own column and because metadata has been removed to its own table.
 
-The structure of the original data set is not ammenable to this:
-
-
-The first solution is the function f(x) to process and transpose the data so that the Year information is extracted from the table names, and moved to its own column (variable). However, We have converted a dataset with approx 5321 rows and 27 cols, to one that has 22 rows and 5322 cols. This is slightly smaller and more useful, becasue years are in their own column
-
-```{r, eval=F}
-epaExpandTimeSeriesByID = function(epaDataSubset){
-    # expand column title into descriptor variables
-}
-epaReformatTimeSeriesData = function(epaData, byPollutant = T){
-    # expand column title into descriptor variables
-    # for a group of different columns, using the
-    # epaExpandTimeSeriesByID() function, then merge
-    # the data into a single output
-}
-```
+We attempted to regroup the data by pollutant so that the dataset would only need to be 8 columns wide: Year and 7 pollutants. The initial functionality was promisising on a small scale, but was rather inefficient when applied to the 5321 column wide transposed data. However, this useful functionality was salvaged to be used to support exploratory analysis.
 
 ## Implementaion
 
-pollution_data_source_prep_01.R
+### Main functionality
 
-helpers - helpers-epa_data_prep_01.R
+The code in this section is simply the **pollution_data_source_prep_01.R** data processing script, which relied upon the **helpers-epa_data_prep_01.R** to supply additional functionality.
 
+### Extra functionality
 
-
-#### Comments about extra functionality
-
-extra functionality: helpers-epa_data_explore_01.R
-
-born from an attempt to further process the transformed data table
-
+The extra functionality was contained within the **helpers-epa_data_explore_01.R**, which was moved to the exploratory analysis helper function section for future use.
 
 These functions Expand the variables in the transposed data summary created
 during the data preparation phase of the EPA State summary dataset.
-These functiosn are NOT intended to process the ENTIRE dataset, but to prepare
-subsets of interest for exploratory analysis and other analyses. Basically,
-the functions, particularly:
-  epa_help_explore_01epaReformatTimeSeriesData()
-were slow when applied to the roughly 5200 variables in the transposed data set.
-Further, the datasets tended to be sparse due to missing values, presumably
-because (among other reasons) some pollutants were not emmitted by certain sources.
+These functions are NOT intended to process the ENTIRE dataset as described [above](#main-data-preparation), but to prepare subsets of interest for exploratory analysis and other analyses. In addition to being slow, these functions tended to produce sparse datasets, due to missing values, when applied to the whole dataset. Presumably, because (among other reasons) some pollutants were not emmitted by certain sources.
+
+## Updates:
+
+None so far :smile:
+
+<br/>

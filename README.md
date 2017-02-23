@@ -1,4 +1,10 @@
-# healthyAir_DSc_proj
+---
+title: "Healthy Air: Project README"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+---
 
 
 <!--

@@ -1,5 +1,5 @@
 ---
-title: "Asthma Data Preparation II - Data Processing Implementation"
+title: "Asthma Data Preparation II: Data Processing Implementation"
 output:
   html_document:
     toc: true
