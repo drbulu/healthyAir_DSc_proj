@@ -107,6 +107,7 @@ Now that we have a tidy Asthma dataset, we will proceed to tackle the next datas
 
 ## Updates:
 
+* **2017-02-23**: Another dataset of potential interest is the [National Health Interview Survey (NHIS)](https://www.cdc.gov/asthma/nhis/default.htm) dataset that contains various tables from 2001 to 2015, including asthma attack prevalence. Granularity: national.
 None so far :smile:
 
 <br/>
