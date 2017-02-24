@@ -6,6 +6,29 @@ output:
     toc_depth: 4
 ---
 
+<!-- Markdown rendering doesn't produce a nice TOC: harvested it from the HTML version -->
+<div class="fluid-row" id="header">
+<h1 class="title toc-ignore">Healthy Air: Project README</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#about">About</a></li>
+<li><a href="#background-summary">Background summary:</a></li>
+<li><a href="#hypothesis">Hypothesis:</a></li>
+</ul></li>
+<li><a href="#project-structure">Project Structure</a><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#data-preparation">1: Data preparation</a></li>
+<li><a href="#exploratory-data-analysis">2: Exploratory data analysis</a></li>
+<li><a href="#statistical-analysis-and-data-modelling">3: Statistical analysis and data modelling</a></li>
+<li><a href="#predictive-modelling-and-machine-learning">4: Predictive modelling and machine learning</a></li>
+<li><a href="#data-products">5: Data products</a></li>
+</ul></li>
+</ul>
+</div>
+
 ## Introduction
 
 ### About
@@ -28,26 +51,44 @@ The basic hypotheses that guide this project are that:
 
 ## Project Structure
 
-These hypotheses will be evaluated through judicious analysis of potentially useful [open data](https://en.wikipedia.org/wiki/Open_data), from which important insights and relationships can be extracted and utilised.
+### Overview
 
-The broad 
+These hypotheses will be evaluated through judicious analysis of potentially useful [open data](https://en.wikipedia.org/wiki/Open_data), from which important insights and relationships can be extracted and utilised. The following general framework represents the different groups of activities that will be used to investigate the hypothesis, communicate the results and leverage insights gained from the analysls:
 
-represent the different activities that will be used to investigate the hypothesis, communicate the results and leverage insights gained from teh analysls
+<!-- as section nav -->
 
-1. Data_Prep
+1. Raw data aquisition and preparation
 
-2. Exploratory_Analysis
+2. Exploratory data analysis
 
-3. Stats_Modelling
+3. Statistical analysis and modelling
 
-4. Pred_Modelling
+4. Prediction modelling and machine learning
 
-5. Data_Products
+5. The development of reports and other data products
 
-The following sections contain links to project documents pertaining to each activity:
+The following sections contain links to project documents pertaining to each part of the framework:
 
 ### 1: Data preparation
 
+1. Asthma Data:
+
+    This dataset captures the prevalence of asthma over time in the US by region, stratified by region (state) a number of potentially interesting groups. This is the quantity (response variable) that we are interested in predicting in the context of other factors.
+
+    * Data preparation [strategy](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) overview.
+    * Data preparation [implemetation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) overview.
+
+2. Traffic Data:
+
+    This data measures rural and urban traffic volumes (in millions of vehicle miles) and is also stratified by region.
+
+    * Data preparation [strategy and implemetation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/traffic_data_source_prep_01.Rmd) overview.
+
+3. Pollution Data:
+
+    This data set is a representation of the trends in the emission of seven pollutants by different activities across different states in the US over time.
+
+    * Data preparation [strategy and implemetation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/pollution_data_source_prep_01.Rmd) overview.
 
 ### 2: Exploratory data analysis
 
