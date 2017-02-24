@@ -20,11 +20,11 @@ output:
 </ul></li>
 <li><a href="#project-structure">Project Structure</a><ul>
 <li><a href="#overview">Overview</a></li>
-<li><a href="#data-preparation">1: Data preparation</a></li>
-<li><a href="#exploratory-data-analysis">2: Exploratory data analysis</a></li>
-<li><a href="#statistical-analysis-and-data-modelling">3: Statistical analysis and data modelling</a></li>
-<li><a href="#predictive-modelling-and-machine-learning">4: Predictive modelling and machine learning</a></li>
-<li><a href="#data-products">5: Data products</a></li>
+<li><a href="#1-data-preparation">1: Data preparation</a></li>
+<li><a href="#2-exploratory-data-analysis">2: Exploratory data analysis</a></li>
+<li><a href="#3-statistical-analysis-and-data-modelling">3: Statistical analysis and data modelling</a></li>
+<li><a href="#4-predictive-modelling-and-machine-learning">4: Predictive modelling and machine learning</a></li>
+<li><a href="#5-data-products">5: Data products</a></li>
 </ul></li>
 </ul>
 </div>
