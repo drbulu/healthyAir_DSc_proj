@@ -1,0 +1,126 @@
+---
+title: "Asthma data: Numerical Summary"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+---
+
+## Intro
+
+In the [data preparation phase](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd), we were able to scrape together a number of tables from the web and save them to disk as CSV files. 
+
+We are using knitr with RStudio to document this exploration. Therefore, the following chunk of code (**```configChunk```**) is quite important. This is because knitr normally sets the root directory as the working directory, which is inconvenient for us as this (and most other) RMarkdown files are located in project subdirectories. What is not readily appreciable is that this default behavious renders our file paths, which are relative to the parent project directory (the R project working directory), are rendered invalid. The solution, as it happens, is quite simple and is shown below. 
+
+```{r, configChunk, echo=TRUE}
+# Getting knitr to play ball
+# http://stackoverflow.com/questions/24585254/working-with-knitr-using-subdirectories
+require(knitr, quietly=TRUE)
+opts_knit$set(root.dir = normalizePath("../"))
+```
+
+In most cases, the following code block would have the **```echo=FALSE```** flag as it need not be visible. However, it was set to **```TRUE```** for the purposes of this demonstration. The **```quietly=TRUE```** argument to require() is simply to suppress the unecessary package loading message. Alternatively, this can be achieved via the **```message=FALSE```** chunk option.
+
+example 1: readr::read_csv() vs read.csv() - Data processing heads up
+
+highlights the need to understand things like thousands separators and their impact on 
+
+```{r, data_import_options}
+## Note: read_csv and read_tsv can read in text as well as files.... useful!
+require(readr)
+
+speedReadr = proc.time()
+x = read_csv("./Data/asthma/series/adult_age.csv")
+speedReadr = proc.time() - speedReadr
+
+speedUtils = proc.time()
+y = read.csv("./Data/asthma/series/adult_age.csv", stringsAsFactors = F)
+speedUtils = proc.time() - speedUtils
+
+speedReadr['elapsed']
+
+speedUtils['elapsed']
+```
+
+Difference between read_csv() function from the [readr](https://github.com/tidyverse/readr) package and read.csv() in the base [utils](https://cran.r-project.org/doc/manuals/r-release/R-data.html#Variations-on-read_002etable) package. Guessing column types. Need to check that it is done correctly.
+
+
+
+```{r}
+head(x[ is.na(x$Prev.perc), ])
+```
+
+```{r, dataImport, message=F, warning=F}
+
+#### 1. Data Import ####
+
+# Source data dir
+asthmaDataDir = "./Data/asthma/series/"
+
+# note: the file name pattern is "group_demographic.csv" e.g "adult_age.csv"
+# note: readr seems to be able to read directly from zipped files without unzip()
+getCsvDataListFromDir = function(dirName){
+    require(readr)
+    dataList = list()
+    dataFiles = grep("(*)+\\.csv$", dir(dirName), value = T)
+    for(fileName in dataFiles){
+        filePrefix = gsub("\\.csv$", "", fileName)
+        dataList[[filePrefix]] = read_csv(file = file.path(dirName, fileName))    
+    }
+    return(dataList)
+}
+
+asthmaDataList = getCsvDataListFromDir(asthmaDataDir)
+
+# This is a nice little function that makes it to get a
+# basic overview of a list of tables in a more concise
+# (i.e. comppact) manner than summary() or head(). 
+getTableColAndClass = function(dataFrame){
+    # obtain col names and classes from data Frame
+    numCol = ncol(dataFrame)
+    colNameSet = sapply(1:numCol, FUN = function(x){
+        nameID = names(dataFrame)[x]
+    })
+    colClassSet = sapply(1:numCol, FUN = function(x){
+        class( as.data.frame(dataFrame)[, x ])
+    })
+    # prep annotated column names
+    annotColNames = paste(colNameSet, paste0("(", colClassSet , ")"))
+    # separate the last col name for easy printing
+    collapseChar = ", "
+    lastColID = length(annotColNames)
+    firstColNames = paste(annotColNames[1:(lastColID - 1)], collapse=collapseChar)
+    lastColName = annotColNames[lastColID]
+    # print neatly to console using print
+    stringPrefix = "Column Names (Class): "
+    cat(stringPrefix, firstColNames, "and", lastColName, ".")
+}
+
+#
+conciseDataListSummary = function(dataList){
+    dataCount = length(dataList)
+    singleSpace = "\n"
+    doubleSpace = "\n\n"
+    ellipses = paste(rep(".", 20), collapse = "")
+    for(id in 1:dataCount){
+        dataDim = dim(dataList[[id]])
+        tableIntroMsg = paste0("Table ", id, " of ",
+            dataCount, ". Name: ", names(dataList)[id],
+            ". rows (", dataDim[1], "), cols (", dataDim[2], ") ", ellipses)
+        cat( tableIntroMsg , "\n")
+        getTableColAndClass(dataList[[id]])
+        cat(doubleSpace)
+    }
+}
+
+conciseDataListSummary(asthmaDataList)
+```
+
+
+Without this brief check it would not be as obvious to see that not all of the columns were read into R with the correct class (data type).
+
+For future reference: 
+
+https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States
+
+https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_area

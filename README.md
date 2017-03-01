@@ -92,6 +92,20 @@ The following sections contain links to project documents pertaining to each par
 
 ### 2: Exploratory data analysis
 
+#### A. Preliminary
+Exploratory analysis using graphs and other visualisation tools is quite exciting and insightful. However, sometimes we need to perform the comparatively boring task of checking the success and completeness of our data. 
+
+Therefore, before we get to the exciting task of constructing exploratory visualisations, we need to check how complete the data preparation is thus far. This will enable us to read in our data correctly prior to subsequent analysis, and will help to highlight any quirks to beware of or any further processing that might be required prior to analysis.
+
+Conceivably, the results of this stage of the analysis could be fed back into the data preparation step in order implement further refinements as required.
+<!--
+A) Numerical summaries: Aims
+* A preliminary inspection of the structure and quality of the processed data. 
+* 
+-->
+
+#### B. In depth
+
 
 ### 3: Statistical analysis and data modelling
 
