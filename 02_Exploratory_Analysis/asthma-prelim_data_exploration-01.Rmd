@@ -8,119 +8,140 @@ output:
 
 ## Intro
 
+### Setup
+
 In the [data preparation phase](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd), we were able to scrape together a number of tables from the web and save them to disk as CSV files. 
 
-We are using knitr with RStudio to document this exploration. Therefore, the following chunk of code (**```configChunk```**) is quite important. This is because knitr normally sets the root directory as the working directory, which is inconvenient for us as this (and most other) RMarkdown files are located in project subdirectories. What is not readily appreciable is that this default behavious renders our file paths, which are relative to the parent project directory (the R project working directory), are rendered invalid. The solution, as it happens, is quite simple and is shown below. 
+We are using **knitr** with RStudio to document this exploration. Therefore, the following chunk of code (**```configChunk```**) is quite important. This is because knitr normally sets the root directory as the working directory, which is inconvenient for us as this (and most other) RMarkdown files are located in project subdirectories. What is not readily appreciable is that this default behavious renders our file paths, which are relative to the parent project directory (the R project working directory), are rendered invalid. The solution, as it happens, is quite simple and is shown below. 
 
 ```{r, configChunk, echo=TRUE}
 # Getting knitr to play ball
 # http://stackoverflow.com/questions/24585254/working-with-knitr-using-subdirectories
 require(knitr, quietly=TRUE)
 opts_knit$set(root.dir = normalizePath("../"))
+getwd()
 ```
 
-In most cases, the following code block would have the **```echo=FALSE```** flag as it need not be visible. However, it was set to **```TRUE```** for the purposes of this demonstration. The **```quietly=TRUE```** argument to require() is simply to suppress the unecessary package loading message. Alternatively, this can be achieved via the **```message=FALSE```** chunk option.
+### Exploration tools
 
-example 1: readr::read_csv() vs read.csv() - Data processing heads up
+Before diving into the data, I did a little prototyping in the script **asthma-exploratory_notes-01.R**. One of the things that I wanted to do was a brief comparison of the performance of read_csv() (readr) and read.csv() (utils). 
 
-highlights the need to understand things like thousands separators and their impact on 
+For what we are looking for, the notable difference between read_csv() function from the [readr](https://github.com/tidyverse/readr) package and read.csv() in the base [utils](https://cran.r-project.org/doc/manuals/r-release/R-data.html#Variations-on-read_002etable) package... readr functions can guess column types. This is useful, but leaves you quite at the mercy of the function's internal logic. 
 
-```{r, data_import_options}
-## Note: read_csv and read_tsv can read in text as well as files.... useful!
-require(readr)
+The simplest solution to avoid this is to set the **guess_max** argument to <u>zero</u>. This has the advantage of quickly reading in all data as character variables, which you then have to reclass yourself. Howver, this means that any wierd type coersion will be <u>your</u> fault, not readr's :wink:. Other useful args to take not of are **skip** and **n_max**.
 
-speedReadr = proc.time()
-x = read_csv("./Data/asthma/series/adult_age.csv")
-speedReadr = proc.time() - speedReadr
+One other thing that I did notice was that readr::read_csv() was able to guess the type of columns containing numbers with commas as thousands separators but these appeared as character in read.csv(). This was a good data processing heads up which gave me a reminder of the need to better understand the structure of the data and possible processing implications. 
+## Data Exploration
 
-speedUtils = proc.time()
-y = read.csv("./Data/asthma/series/adult_age.csv", stringsAsFactors = F)
-speedUtils = proc.time() - speedUtils
+### Data Import
 
-speedReadr['elapsed']
-
-speedUtils['elapsed']
-```
-
-Difference between read_csv() function from the [readr](https://github.com/tidyverse/readr) package and read.csv() in the base [utils](https://cran.r-project.org/doc/manuals/r-release/R-data.html#Variations-on-read_002etable) package. Guessing column types. Need to check that it is done correctly.
-
-
-
-```{r}
-head(x[ is.na(x$Prev.perc), ])
-```
+I imported the prepared asthma dataset data using the code in the chunk below. Note, the functionality prototyping that I did in **asthma-exploratory_notes-01.R** was to create helpers (as is my wont) to neaten up the primary analysis code. Generally useful functions, such as **getCsvDataListFromDir()**, were moved to **general_helpers_01.R** while some of the other functionality in this chunk exists in **helpers-asthma_data_explore_00.R** (generally useful for data summary).
 
 ```{r, dataImport, message=F, warning=F}
 
 #### 1. Data Import ####
 
+# import helper functions
+helperParentDir = "./helper_scripts/"
+source(file.path(helperParentDir, "01_data_prep/", "general_helpers_01.R"))
+source(file.path(helperParentDir, "02_data_explore/", "helpers-prelim_data_explore_00.R"))
+
 # Source data dir
 asthmaDataDir = "./Data/asthma/series/"
 
-# note: the file name pattern is "group_demographic.csv" e.g "adult_age.csv"
-# note: readr seems to be able to read directly from zipped files without unzip()
-getCsvDataListFromDir = function(dirName){
-    require(readr)
-    dataList = list()
-    dataFiles = grep("(*)+\\.csv$", dir(dirName), value = T)
-    for(fileName in dataFiles){
-        filePrefix = gsub("\\.csv$", "", fileName)
-        dataList[[filePrefix]] = read_csv(file = file.path(dirName, fileName))    
-    }
-    return(dataList)
-}
-
-asthmaDataList = getCsvDataListFromDir(asthmaDataDir)
-
-# This is a nice little function that makes it to get a
-# basic overview of a list of tables in a more concise
-# (i.e. comppact) manner than summary() or head(). 
-getTableColAndClass = function(dataFrame){
-    # obtain col names and classes from data Frame
-    numCol = ncol(dataFrame)
-    colNameSet = sapply(1:numCol, FUN = function(x){
-        nameID = names(dataFrame)[x]
-    })
-    colClassSet = sapply(1:numCol, FUN = function(x){
-        class( as.data.frame(dataFrame)[, x ])
-    })
-    # prep annotated column names
-    annotColNames = paste(colNameSet, paste0("(", colClassSet , ")"))
-    # separate the last col name for easy printing
-    collapseChar = ", "
-    lastColID = length(annotColNames)
-    firstColNames = paste(annotColNames[1:(lastColID - 1)], collapse=collapseChar)
-    lastColName = annotColNames[lastColID]
-    # print neatly to console using print
-    stringPrefix = "Column Names (Class): "
-    cat(stringPrefix, firstColNames, "and", lastColName, ".")
-}
-
-#
-conciseDataListSummary = function(dataList){
-    dataCount = length(dataList)
-    singleSpace = "\n"
-    doubleSpace = "\n\n"
-    ellipses = paste(rep(".", 20), collapse = "")
-    for(id in 1:dataCount){
-        dataDim = dim(dataList[[id]])
-        tableIntroMsg = paste0("Table ", id, " of ",
-            dataCount, ". Name: ", names(dataList)[id],
-            ". rows (", dataDim[1], "), cols (", dataDim[2], ") ", ellipses)
-        cat( tableIntroMsg , "\n")
-        getTableColAndClass(dataList[[id]])
-        cat(doubleSpace)
-    }
-}
-
-conciseDataListSummary(asthmaDataList)
+asthmaDataList = gen_helpers_01$getCsvDataListFromDir(asthmaDataDir)
 ```
 
 
-Without this brief check it would not be as obvious to see that not all of the columns were read into R with the correct class (data type).
+### Data Initial snapshot
+The **conciseDataListSummary()** function below was designed to give a very brief and compact summary of a potentially large list of data.frames, with the specific purpose of scoping out each data.frame for the names and data types of all the columns. 
 
-For future reference: 
+The following output would be a lot more compact than running **head()** or **str()** as the output would rapidly become problematic. This is slightly more informative than **names()**, which only returns the column names for a given data.frame. For more a comparison of the options, skip the [appendix](#appendix)
+
+```{r}
+# go through the data.frame list and print out the names and classs
+# of each column from each data.frame in the list.
+data_exp_help_01$conciseDataListSummary(asthmaDataList)
+```
+
+
+Let's take a look at the same table
+
+```{r}
+knitr::kable(head(asthmaDataList[[1]], 5))
+```
+
+**summary()** is a powerful function to drill down into a data.frame to get a picture of what is going on. So, let's summarise it to see what is going on...
+
+```{r}
+knitr::kable(summary(asthmaDataList[[1]]))
+```
+
+Let's see what is going on with the NAs
+
+```{r}
+adult_age_na_subset = asthmaDataList[[1]][ is.na(asthmaDataList[[1]]$SampleSize), ]
+
+knitr::kable(head(adult_age_na_subset))
+```
+
+
+What are the values of State that represent these NA rows:
+
+```{r}
+unique( adult_age_na_subset$State[is.na(adult_age_na_subset$SampleSize)] )
+```
+
+Let's have a look at all of the State names to see what else might be going on:
+
+```{r}
+unique(asthmaDataList[[1]]$State)
+```
+
+These should probably look like this
+
+```{r}
+gsub("U(.)*S(.)*", "US TOTAL", unique(asthmaDataList[[1]]$State))
+```
+
+
+Note: For future reference: 
 
 https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States
 
 https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_area
+
+
+## Appendix
+
+### Comparison of data frame list snapshot optiosn
+
+To compare the effect, we will use the first data.frame in the list (**`r names(asthmaDataList)[1]`**), to compare output, since the other functions above don't work on data.frame lists without "help".
+
+Our handy function, which also provides other metadata such as the name of the list element index linked to the table, and its dimensions (row and col count)
+
+```{r}
+data_exp_help_01$conciseDataListSummary(asthmaDataList[1])
+```
+
+vs. names()
+```{r}
+names(asthmaDataList[[1]])
+```
+
+vs. head()
+
+```{r}
+head(asthmaDataList[[1]])
+```
+
+vs. str()
+
+```{r}
+str(asthmaDataList[[1]])
+```
+
+**summary()** is also a useful function
+```{r}
+summary(asthmaDataList[[1]])
+```

@@ -6,9 +6,10 @@ gen_helpers_01 = list()
 
 # lovely little function - uses REGEX to cut out matching text: 
 # inspired by searching ?regmatches (help page) on RStudio console
-
+# returns character(0) if no match found... not great.
 gen_helpers_01$extractMatch = function(x, pattern, invertMatch=F){
     result = regmatches(x, regexpr(pattern, x), invert = invertMatch)
+    result = ifelse(!length(result), NA, result)
     return(result)
 }
 
@@ -68,6 +69,16 @@ gen_helpers_01$read_excel_quiet <-  function(...) {
     else readxl::read_excel(...)
 }
 
+# readr msg output was similarly annoying. Previous strategy didn't work
+# fortunately, the answer was pretty simple :)
+# The link was general but helpful: http://stackoverflow.com/a/41285354
+gen_helpers_01$read_csv_quiet <-  function(...) {
+    if(!require(readr)) stop("Package 'readr' not found! ")
+    suppressWarnings(suppressMessages(
+        readr::read_csv(...)
+    ))
+}
+
 # basic function to save CSV with basic standardised functionality
 gen_helpers_01$saveAsCsv = function(dataFrame, dirName, fileName){
     # create dataDir with any subdirs    
@@ -75,4 +86,18 @@ gen_helpers_01$saveAsCsv = function(dataFrame, dirName, fileName){
     # create platform independent path
     filePath = file.path(dirName, fileName)
     write.csv( x = dataFrame, file = filePath, row.names = F)
+}
+
+# note: the file name pattern is "group_demographic.csv" e.g "adult_age.csv"
+# note: readr seems to be able to read directly from zipped files without unzip()
+gen_helpers_01$getCsvDataListFromDir = function(dirName){
+    require(readr)
+    dataList = list()
+    dataFiles = grep("(*)+\\.csv$", dir(dirName), value = T)
+    for(fileName in dataFiles){
+        filePrefix = gsub("\\.csv$", "", fileName)
+        dataList[[filePrefix]] = gen_helpers_01$read_csv_quiet(
+            file = file.path(dirName, fileName))
+    }
+    return(dataList)
 }

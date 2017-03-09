@@ -10,6 +10,7 @@ require(readr)
 
 speedReadr = proc.time()
 x = read_csv("./Data/asthma/series/adult_age.csv")
+x1 = read_csv("./Data/asthma/series/adult_age.csv", guess_max = 0)
 speedReadr = proc.time() - speedReadr
 
 speedUtils = proc.time()
