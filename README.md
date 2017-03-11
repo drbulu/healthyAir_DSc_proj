@@ -98,11 +98,16 @@ Exploratory analysis using graphs and other visualisation tools is quite excitin
 Therefore, before we get to the exciting task of constructing exploratory visualisations, we need to check how complete the data preparation is thus far. This will enable us to read in our data correctly prior to subsequent analysis, and will help to highlight any quirks to beware of or any further processing that might be required prior to analysis.
 
 Conceivably, the results of this stage of the analysis could be fed back into the data preparation step in order implement further refinements as required.
-<!--
-A) Numerical summaries: Aims
-* A preliminary inspection of the structure and quality of the processed data. 
-* 
--->
+
+1. Asthma Data:
+
+* [Prelimilary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.Rmd)
+
+2. Asthma Data:
+
+
+3. Asthma Data:
+
 
 #### B. In depth
 

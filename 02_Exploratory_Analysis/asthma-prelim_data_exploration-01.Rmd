@@ -1,5 +1,5 @@
 ---
-title: "Asthma data: Numerical Summary"
+title: "Asthma data: Preliminary Data Exploration"
 output:
   html_document:
     toc: true
@@ -7,6 +7,8 @@ output:
 ---
 
 ## Intro
+
+This document is a first look at the previously processed asthma dataset.
 
 ### Setup
 
@@ -31,9 +33,10 @@ For what we are looking for, the notable difference between read_csv() function 
 The simplest solution to avoid this is to set the **guess_max** argument to <u>zero</u>. This has the advantage of quickly reading in all data as character variables, which you then have to reclass yourself. Howver, this means that any wierd type coersion will be <u>your</u> fault, not readr's :wink:. Other useful args to take not of are **skip** and **n_max**.
 
 One other thing that I did notice was that readr::read_csv() was able to guess the type of columns containing numbers with commas as thousands separators but these appeared as character in read.csv(). This was a good data processing heads up which gave me a reminder of the need to better understand the structure of the data and possible processing implications. 
-## Data Exploration
 
-### Data Import
+## Data exploration
+
+### Data import
 
 I imported the prepared asthma dataset data using the code in the chunk below. Note, the functionality prototyping that I did in **asthma-exploratory_notes-01.R** was to create helpers (as is my wont) to neaten up the primary analysis code. Generally useful functions, such as **getCsvDataListFromDir()**, were moved to **general_helpers_01.R** while some of the other functionality in this chunk exists in **helpers-asthma_data_explore_00.R** (generally useful for data summary).
 
@@ -52,11 +55,12 @@ asthmaDataDir = "./Data/asthma/series/"
 asthmaDataList = gen_helpers_01$getCsvDataListFromDir(asthmaDataDir)
 ```
 
-
-### Data Initial snapshot
+### Initial data snapshot
 The **conciseDataListSummary()** function below was designed to give a very brief and compact summary of a potentially large list of data.frames, with the specific purpose of scoping out each data.frame for the names and data types of all the columns. 
 
 The following output would be a lot more compact than running **head()** or **str()** as the output would rapidly become problematic. This is slightly more informative than **names()**, which only returns the column names for a given data.frame. For more a comparison of the options, skip the [appendix](#appendix)
+
+**<a id="table-1">Table 1</a>:**
 
 ```{r}
 # go through the data.frame list and print out the names and classs
@@ -64,33 +68,55 @@ The following output would be a lot more compact than running **head()** or **st
 data_exp_help_01$conciseDataListSummary(asthmaDataList)
 ```
 
-
-Let's take a look at the same table
+Let's take a look at the first table in the table list ([Table 1](#table-1)), to get an idea of the composition of the data:
 
 ```{r}
 knitr::kable(head(asthmaDataList[[1]], 5))
 ```
 
-**summary()** is a powerful function to drill down into a data.frame to get a picture of what is going on. So, let's summarise it to see what is going on...
+Seems pretty straight forward, the contents of each column seems to be as one would expect given the column name, except for the **Prev.perc.SE** column. This column contains numbers (numeric) but is set to character. Let's explore this further to see what structure (i.e. anomalies or artefacts) of the data might be responsible for this data type misclassification.
+
+The **summary()** is a powerful function to drill down into a data.frame to get a picture of what is going on. So, let's summarise it to see what is going on...
 
 ```{r}
 knitr::kable(summary(asthmaDataList[[1]]))
 ```
 
-Let's see what is going on with the NAs
+The **Prev.perc.SE** column is summarised as a character variable, as we expect. This, however, doesn't help us to figure out where the problem is. What might help us though, is the fact that all of the numeric columns (Year is an integer) each have 28 NA values. Our question then becomes this:
+
+> "Is there something in common between the 28 NA rows in the numeric columns and the fact that the Prev.perc.SE, which should also be numeric, is classed as a character?"
+
+To answer this, let's see what is going on with the NAs:
 
 ```{r}
-adult_age_na_subset = asthmaDataList[[1]][ is.na(asthmaDataList[[1]]$SampleSize), ]
-
+adult_age_na_subset = asthmaDataList[[1]][is.na(asthmaDataList[[1]]$SampleSize), ]
 knitr::kable(head(adult_age_na_subset))
 ```
 
-
-What are the values of State that represent these NA rows:
+When we cast our minds back to the raw data tables, the "Territories" label is actually a subheading that differentiates between the 50 states of the US and the associated territories. The next thing to do is to find out and confirm what values of the **State** variable are represent these NA rows:
 
 ```{r}
 unique( adult_age_na_subset$State[is.na(adult_age_na_subset$SampleSize)] )
 ```
+
+To confirm that we have identified the source of the type conversion issues throughout the asthma dataset (all data.frames in the list), let's briefly profile another data frame in the list:
+
+```{r}
+adult_income_na_subset = asthmaDataList[[5]][is.na(asthmaDataList[[5]]$SampleSize), ]
+knitr::kable(head(adult_income_na_subset))
+unique(asthmaDataList[[5]]$State)
+```
+
+Just to be sure:
+
+```{r}
+# number of rows where the "SampleSize" (numeric) column's value is NA
+nrow( asthmaDataList[[5]][is.na(asthmaDataList[[5]]$SampleSize), ] )
+# number of rows where the "State" column's value is "Territories"
+nrow( asthmaDataList[[5]][ asthmaDataList[[5]]$State == "Territories", ] )
+```
+
+Seems pretty convincing to me!
 
 Let's have a look at all of the State names to see what else might be going on:
 
@@ -98,23 +124,80 @@ Let's have a look at all of the State names to see what else might be going on:
 unique(asthmaDataList[[1]]$State)
 ```
 
-These should probably look like this
+These should probably look like this:
 
 ```{r}
 gsub("U(.)*S(.)*", "US TOTAL", unique(asthmaDataList[[1]]$State))
 ```
 
+This pattern seems to be a feature of all of the datasets, so this is something that we need to fix before further exploration :smile:. However, we might still want to succinctly capture the meta infomration associated with asterisks (*) in the "U.S. Total**" labels. Basically, we might want to be aware of which summaries have been flagged <u>without</u> having to add another column to the entire dataset to account for a potentially small number of observations. The asterisks seem to represent the following note about how the [national totals](https://www.cdc.gov/asthma/brfss/2014/tableL1.htm) are calculated:
 
-Note: For future reference: 
+> "**U.S. Total includes 50 states plus the District of Columbia and excludes the three territories."
 
-https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States
+This is important to keep in mind, but hardly worthy of a separate column... or is it?
 
-https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_area
+```{r}
+adult_age = asthmaDataList$adult_age
+starTotalRows = nrow(adult_age[adult_age$State == "U.S. Total**", ])
+nonStarTotalRows = nrow(adult_age[adult_age$State == "US Total", ])
+totalRowContrib = (starTotalRows + nonStarTotalRows)/ nrow(adult_age) * 100
+ 
+starYears = adult_age$Year[adult_age$State == "U.S. Total**"]
+nonStarYears = adult_age$Year[adult_age$State == "US Total"]
+```
 
+For example, in the adult age data (adult_age) rows we find that of the `r nrow(adult_age)` observations, `r starTotalRows` and `r nonStarTotalRows` rows match the "U.S. Total**" () and "US Total" **State** descriptions, respectively. Rows labelled "U.S. Total**" are associated with the years between `r min(starYears)` and `r max(starYears)`. While those labelled "US Total" were found only in the year `r unique(nonStarYears)`.
+
+For this reason, and because the total rows constitute only **`r round(totalRowContrib, 2)`** % of the data in this table, we will no be adding a separate column to capture the information represented by the asterisks. Instead, we can standardise these labels a little so that the US Total rows can be extracted efficiently despite the asterisks in some observations. To enable this selection, we can probably do something like this to make them otherwise identical to the non-flagged total rows :wink::
+
+```{r}
+gsub("U(.)*S(.)*[Tt]otal", "US Total", unique(asthmaDataList[[1]]$State))
+```
+
+## Prelim conclusions
+
+Main takehome: The asthma dataset looks reasonabley clean but needs some work to make it totaly [tidy](http://vita.had.co.nz/papers/tidy-data.pdf).
+
+### Exploration summary
+
+Based on the analysis that we have performed above, it looks like the asthma data set is reasonably clean. Encouragingly, readr::**read_csv()** should be able to neatly handle the classes of the input data that was generated during data processing. However, there are a number of things that we could (and really should) do to clean up the data prior to exploration and analysis.
+
+### Further cleanup
+
+The data is neat, but still has a little way to go before being tidy. Important things to note include:
+
+1. Cleanup of sample rows. This will have the downstream benefit of removing spurions entries and simultaneously making it much easier to correctly assign data types to the processed data upon subsequent import:
+
+    * remove entries where the "State" column has the text "Territories". This is a simple but useful step that really shouldn't have to be dealt with later
+    * Standardising the national summary data in the rows where "State" is "US Total" or "U.S. Total"
+
+```{r, }
+# total row count (all tables in list) - (est NA row count * number of tables)
+estTotalDataSize = sum( sapply(asthmaDataList, FUN = nrow) ) - (28 * 10)
+```
+
+2. Further standardise the column names of all the input datasets to enable efficient:
+
+    * storage and retrieval of data as single file.
+    * extraction of different information subsets from the whole dataset.
+    * The total data size is approximately **`r format(estTotalDataSize, scientific=F)`** rows, which large but quite manageable in the grand scheme of things. There are a multitude of strategies to efficiently handle large files in R and such options are discussed [here](http://stackoverflow.com/a/9353181) and [here](http://stackoverflow.com/a/1728422).
+
+In order to condense all 10 tables into a single, uniform table, we would need to standardise the number and type of columns such that ALL tables are identically formatted. One way of compacting the data into a single file would be to add the following columns to the dataset: 
+
+| Demographic | Dem.Category | PrevSize.est |
+|-------------|--------------|--------------|
+| Overall     | Summary      |       ?      |
+| Age         | 18-24        |       ?      |
+
+The **Demographic** column would capture the information presently captured in columns such as **AgeGroup** or **Income** column names. The column containing the demographic information could then be renamed to **Dem.Category**. The third proposed column, **PrevSize.est**, is optional and is derived from the product of the **SampleSize** and **Prev.perc** columns. This is simple to calculate, but it's potential convenience in later analysis may justify its inclusion during data processing.
+
+3. On the topic of State names, we do need to create a metadata reference containg state information such as State name, abbreviation and other potentially useful information. To obtain this information we can simply obtain the tables such as [this](https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States) one and [this](https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_area) one by webscraping :smile:. Such metadata would be quite valuable, given that other datasets in this project (e.g the traffic data) contain full name description of states and not abbreviations as in the case with this data. We would then need a way of translating between the full names and abbreviations.
+
+<p style="text-align:center;">Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :smile:</p>
 
 ## Appendix
 
-### Comparison of data frame list snapshot optiosn
+### Comparison of data frame list snapshot options
 
 To compare the effect, we will use the first data.frame in the list (**`r names(asthmaDataList)[1]`**), to compare output, since the other functions above don't work on data.frame lists without "help".
 
@@ -145,3 +228,5 @@ str(asthmaDataList[[1]])
 ```{r}
 summary(asthmaDataList[[1]])
 ```
+
+<p style="text-align:center;">Back to [the top]() :smile:</p>
