@@ -10,6 +10,28 @@ output:
 
 This document is a first look at the previously processed asthma dataset.
 
+<ul>
+    <li><a href="#intro">Intro</a><ul>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#exploration-tools">Exploration tools</a></li>
+</ul></li>
+    <li><a href="#data-exploration">Data exploration</a>
+    <ul>
+        <li><a href="#data-import">Data import</a></li>
+        <li><a href="#initial-data-snapshot">Initial data snapshot</a></li>
+    </ul></li>
+    <li><a href="#prelim-conclusions">Prelim conclusions</a>
+    <ul>
+        <li><a href="#exploration-summary">Exploration summary</a></li>
+        <li><a href="#further-cleanup">Further cleanup</a></li>
+        </ul>
+    </li>
+    <li><a href="#appendix">Appendix</a>
+    <ul>
+    <li><a href="#comparison-of-data-frame-list-snapshot-options">Comparison of data frame list snapshot options</a></li>
+    </ul></li>
+</ul>
+
 ### Setup
 
 In the [data preparation phase](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd), we were able to scrape together a number of tables from the web and save them to disk as CSV files. 
@@ -21,7 +43,6 @@ We are using **knitr** with RStudio to document this exploration. Therefore, the
 # http://stackoverflow.com/questions/24585254/working-with-knitr-using-subdirectories
 require(knitr, quietly=TRUE)
 opts_knit$set(root.dir = normalizePath("../"))
-getwd()
 ```
 
 ### Exploration tools
@@ -154,7 +175,7 @@ For this reason, and because the total rows constitute only **`r round(totalRowC
 gsub("U(.)*S(.)*[Tt]otal", "US Total", unique(asthmaDataList[[1]]$State))
 ```
 
-## Prelim conclusions
+## Preliminary analysis conclusions
 
 Main takehome: The asthma dataset looks reasonabley clean but needs some work to make it totaly [tidy](http://vita.had.co.nz/papers/tidy-data.pdf).
 

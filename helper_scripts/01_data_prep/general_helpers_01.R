@@ -88,6 +88,26 @@ gen_helpers_01$saveAsCsv = function(dataFrame, dirName, fileName){
     write.csv( x = dataFrame, file = filePath, row.names = F)
 }
 
+# file save function: should probably be a helper, since it can
+# generally handle a simple named list of data.frames and loop
+# through said list and create a group of auto-named CSV files.
+# note: this function requires a named list
+gen_helpers_01$saveDataListCsv = function(dataList, dataDir = "./", overwrite=F){
+    # create dataDir with any subdirs    
+    if (!dir.exists(dataDir)) dir.create(dataDir, recursive = T)
+    # helper to create file path
+    prepFilePath = function(n, dirName){
+        n = gsub("( )+", "_", n)
+        fileName = paste0(tolower(gsub("\\.", "_", n)), ".csv")
+        return(paste(dirName, fileName, sep="/"))
+    }
+    # write dataList elements to CSV using element name to derive filename
+    # noEcho is a lazy attempt to not echo a null list to console. write.csv()
+    # returns NULL/void.
+    noEcho = lapply(names(dataList), FUN=function(x, y){ write.csv(x = y[[x]], 
+        file = prepFilePath(x, dataDir), row.names = F) }, dataList)    
+}
+
 # note: the file name pattern is "group_demographic.csv" e.g "adult_age.csv"
 # note: readr seems to be able to read directly from zipped files without unzip()
 gen_helpers_01$getCsvDataListFromDir = function(dirName){

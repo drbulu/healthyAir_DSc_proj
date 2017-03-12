@@ -101,7 +101,7 @@ Conceivably, the results of this stage of the analysis could be fed back into th
 
 1. Asthma Data:
 
-* [Prelimilary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.Rmd)
+* [Preliminary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.Rmd)
 
 2. Asthma Data:
 

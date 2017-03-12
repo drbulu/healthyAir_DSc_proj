@@ -1,5 +1,8 @@
 # Data Processing helpers 
 
+## 0. Obtain generally useful and helpful regular expression function
+source("./helper_scripts/01_data_prep/general_helpers_01.R")
+
 
 ## Need function to process an entire URL table
 
@@ -154,12 +157,7 @@ asthma_helpers_02$cleanAsthmaTableNames = function(targetTable, removeNameRow = 
     return(targetTable)
 }
  
-## 6. Consolidate all of the individual tables in a particular dataseries
-
-## 6a. Obtain generally useful and helpful regular expression function
-source("./01_Data_Prep/helpers/general_helpers_01.R")
-
-## 6b. Consolidation function
+## 6. Consolidate all of the individual tables in a particular Data Series
 
 # a data series is a list of tables that consist of the same data observations
 # collected over successive years.
@@ -195,3 +193,54 @@ asthma_helpers_02$createDataseriesFromList = function(sourceTableList, sortData 
     return(mergedTable)
 }
 
+## 7. Process Data Series into tables that can be successfully merged
+
+asthma_helpers_02$reformatDataSeriesList = function(dataSeriesList){
+    # prep metadata
+    asthmaMeta = asthma_helpers_01$initAsthmaMetaData()
+    # process data series list
+    for(i in 1:length(dataSeriesList)){
+        # extract demID from current Data Series List entry
+        demID = unique(gsub("[a-zA-Z]", "", dataSeriesList[[i]]$Table.ID))
+        # loop through metadata and assign Demographic
+        # data type to selected Data Series
+        for(j in 1:length(asthmaMeta$demID)){
+            if(asthmaMeta$demID[j] == demID){
+                dataSeriesList[[i]]$Demographic = asthmaMeta$demographic[j]
+                break
+            }
+        }
+        
+        if(dataSeriesList[[i]]$Demographic == "Overall"){
+            dataSeriesList[[i]]$Dem.Category = "Summary"
+        } else if (dataSeriesList[[i]]$Demographic == "Gender"){
+            dataSeriesList[[i]] = asthma_helpers_02$processGenderData(dataSeriesList[[i]])
+        } else {
+            demREGEX = paste(c("Age", "Ethnicity", "Education", "Income"), 
+                collapse="|")
+            demCol = grep(demREGEX, names(dataSeriesList[[i]]))
+            names(dataSeriesList[[i]])[demCol] = "Dem.Category"
+        }
+    }
+    return(dataSeriesList)
+}
+
+# ii) Helper function in order to process
+
+asthma_helpers_02$processGenderData = function(genderData){
+    # common data columns to keep in both data subsets
+    commonCols = c("State", "Group.ID", "Year", "Table.ID", "Demographic")
+    # process male data
+    maleREGEX = paste( c("Male", commonCols), collapse = "|")
+    maleData = genderData[, grep(maleREGEX , names(genderData))]
+    maleData$Dem.Category = "Male"
+    names(maleData) = gsub("Male(\\.)?", "", names(maleData))
+    # process female data
+    femaleREGEX = paste( c("Female", commonCols), collapse = "|")
+    femaleData = genderData[, grep(femaleREGEX , names(genderData))]
+    femaleData$Dem.Category = "Female"
+    names(femaleData) = gsub("Female(\\.)?", "", names(femaleData))
+    #recombine gender data
+    combinedData = merge(maleData, femaleData, all=T)
+    return(combinedData)
+}
