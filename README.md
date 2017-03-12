@@ -76,7 +76,7 @@ The following sections contain links to project documents pertaining to each par
     This dataset captures the prevalence of asthma over time in the US by region, stratified by region (state) a number of potentially interesting groups. This is the quantity (response variable) that we are interested in predicting in the context of other factors.
 
     * Data preparation [strategy](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_01.Rmd) overview.
-    * Data preparation [implemetation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) overview.
+    * Data preparation [implemetation](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd) overview. <b style="color:red;">Updated</b> based on preliminary data analysis below.
 
 2. Traffic Data:
 

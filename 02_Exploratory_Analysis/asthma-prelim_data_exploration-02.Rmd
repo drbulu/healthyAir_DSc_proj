@@ -1,0 +1,139 @@
+---
+title: "Asthma data: Preliminary Data Exploration"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+---
+
+## Intro
+
+This document is a first look at the previously processed asthma dataset.
+
+### Setup
+
+In the [data preparation phase](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd), we were able to scrape together a number of tables from the web and save them to disk as CSV files. 
+
+
+```{r, configChunk, echo=TRUE}
+# Getting knitr to play ball
+# http://stackoverflow.com/questions/24585254/working-with-knitr-using-subdirectories
+require(knitr, quietly=TRUE)
+opts_knit$set(root.dir = normalizePath("../"))
+```
+
+
+## Data exploration
+
+### Data import
+
+I imported the prepared asthma dataset data using the code in the chunk below. Note, the functionality prototyping that I did in **asthma-exploratory_notes-01.R** was to create helpers (as is my wont) to neaten up the primary analysis code. Generally useful functions, such as **getCsvDataListFromDir()**, were moved to **general_helpers_01.R** while some of the other functionality in this chunk exists in **helpers-asthma_data_explore_00.R** (generally useful for data summary).
+
+```{r, dataImport, message=F, warning=F}
+
+#### 1. Data Import ####
+# import helper functions
+helperParentDir = "./helper_scripts/"
+source(file.path(helperParentDir, "01_data_prep/", "general_helpers_01.R"))
+source(file.path(helperParentDir, "02_data_explore/", "helpers-prelim_data_explore_00.R"))
+
+# Source data dir
+asthmaDataDir = "./Data/asthma/series/"
+asthmaGZipFile = file.path(asthmaDataDir, "asthma_data.csv.gz")
+
+# readr handles compressed files automatically :)
+asthmaData = gen_helpers_01$read_csv_quiet(asthmaGZipFile)
+# but need to convert to data.frame ... tibble issues!
+asthmaData = as.data.frame(asthmaData)
+
+```
+
+### Initial data snapshot
+
+```{r}
+
+knitr::kable(summary(asthmaData))
+
+```
+
+
+```{r}
+
+knitr::kable(head(asthmaData))
+
+```
+
+```{r}
+knitr::kable(head(asthmaData[is.na(asthmaData$Prev.perc), ]))
+unique(asthmaData[is.na(asthmaData$Prev.perc), "Dem.Category"])
+```
+
+What are the characteristics of this NA data subset
+
+```{r}
+subsetCols = c("State", "Group.ID", "Year", "Table.ID", "Demographic", "Dem.Category")
+
+uniqueNaEntryList = lapply(subsetCols, FUN = function(x, dataSet){
+    c(x, length(unique(dataSet[, x])))
+    df = data.frame()
+    df[1, "Col.Name"] = x
+    df[1, "Unique.Vals"] = length(unique(dataSet[, x]))
+    df[1, "Val.Set"] = paste(sort(unique(dataSet[, x])), collapse=", ")
+    return(df)
+}, dataSet = asthmaData[is.na(asthmaData$Prev.perc), ])
+
+uniqueNaEntries = Reduce( function(...) merge(..., all = T), uniqueNaEntryList)
+knitr::kable(uniqueNaEntries)
+```
+
+
+```{r}
+asthmaValidData = asthmaData[!is.na(asthmaData$Prev.perc), ]
+knitr::kable(head(asthmaValidData))
+```
+
+
+
+```{r}
+uniqueEntryList = lapply(subsetCols, FUN = function(x, dataSet){
+    c(x, length(unique(dataSet[, x])))
+    df = data.frame()
+    df[1, "Col.Name"] = x
+    df[1, "Unique.Vals"] = length(unique(dataSet[, x]))
+    return(df)
+}, dataSet = asthmaValidData)
+
+uniqueValidEntries = Reduce( function(...) merge(..., all = T), uniqueEntryList)
+
+knitr::kable(uniqueValidEntries)
+```
+
+Totals groups! 
+Totals ** =  Child, 
+US Totals** = Adult
+
+Too many permutations to pursue with a forest of graphs
+
+Will try graphing the Overall data (C1 and L1)
+
+data totals!
+```{r}
+a = asthmaData[grepl("Total", asthmaData$State), ]
+
+b = a[a$Demographic == "Overall", ]
+```
+
+Then: try to plot data:
+
+Groups (2): Adult and Child, by Demographic (6) across Time (15 years)
+
+State level (50 states) granularity needs different strategy to condense exploratory vis over time. a) raw numbers b) relative to value in current year (0) previous years are either higher or lower!.
+What vis types?
+
+
+<p style="text-align:center;">Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :smile:</p>
+
+## Appendix
+
+
+<p style="text-align:center;">Back to [the top]() :smile:</p>

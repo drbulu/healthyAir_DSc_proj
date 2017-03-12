@@ -253,8 +253,10 @@ asthma_helpers_02$createTidyAsthmaData = function(dataSeriesList){
     asthmaData = asthmaData[, !grepl("Prev.num", names(asthmaData))]
     # remove bad rows: associated with territory
     asthmaData = asthmaData[!grepl("Territor", asthmaData$State), ]
+    # tidy data col names total data
+    asthmaData$State = gsub("U(.)*S(.)*[Tt]otal", "US Total", asthmaData$State)
     # remove comma (thousand separators) to facilitate numeric conversion
-    asthmaData$SampleSize = gsub("[[:punct:]]", "", asthmaData$SampleSize) 
+    asthmaData$SampleSize = gsub("[[:punct:]]", "", asthmaData$SampleSize)
     asthmaData$PrevSize.est = as.numeric(asthmaData$SampleSize) * as.numeric(asthmaData$Prev.perc)/100
     return(asthmaData)    
 }
