@@ -81,9 +81,15 @@ In order to achieve our objective, we will develop the code according to the fol
 
 4. Combine as set of data series into a single master list. <b style="color:blue;">optional:</b> get the raw tables form disk.
 
-5. Save the tables to disk.
+5. Preprocess master list of data series tables to 
+* standardise column names
+* remove spurious rows
 
-## implementation Summary
+6. Merge data list into a single dataset
+
+7. Save the tidy data table to disk as a compressed (gzip) file.
+
+## Implementation Summary<a href="implementation-summary"></a>
 
 The metadata preparation and data acquisition code relied heavily on "batch" functions that applied a small number of more specific functions over a range of groups or years. The code is organised so that the data processing scripts handle the batch processing of data, call a few "master" functions from the helper scripts, which themselves recruit other helpers upon which they have a [dependency](https://en.wikipedia.org/wiki/Coupling_(computer_programming)).
 
@@ -106,6 +112,8 @@ The code that supports the preparation of the Asthma dataset are as follows:
 Now that we have a tidy Asthma dataset, we will proceed to tackle the next dataset... [traffic](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/traffic_data_source_prep_01.Rmd) :wink:!
 
 ## Updates:
+
+* **2017-03-12**: Performed further data cleaninng based on the [preliminary data analysis](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.Rmd#further-cleanup). Added the required functionality to the data processing and phase 2 code [above](#implementation-summary). Naturally, this added additional steps to the [Phase II](#phase-ii-data-processing-from-metadata) implementation.
 
 * **2017-02-23**: Another dataset of potential interest is the [National Health Interview Survey (NHIS)](https://www.cdc.gov/asthma/nhis/default.htm) dataset that contains various tables from 2001 to 2015, including asthma attack prevalence. Granularity: national.
 None so far :smile:

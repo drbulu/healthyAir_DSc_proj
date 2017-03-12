@@ -210,10 +210,10 @@ asthma_helpers_02$reformatDataSeriesList = function(dataSeriesList){
                 break
             }
         }
-        
-        if(dataSeriesList[[i]]$Demographic == "Overall"){
+        # specific processing based on Demographic value
+        if(unique(dataSeriesList[[i]]$Demographic) == "Overall"){
             dataSeriesList[[i]]$Dem.Category = "Summary"
-        } else if (dataSeriesList[[i]]$Demographic == "Gender"){
+        } else if (unique(dataSeriesList[[i]]$Demographic) == "Gender"){
             dataSeriesList[[i]] = asthma_helpers_02$processGenderData(dataSeriesList[[i]])
         } else {
             demREGEX = paste(c("Age", "Ethnicity", "Education", "Income"), 
@@ -243,4 +243,18 @@ asthma_helpers_02$processGenderData = function(genderData){
     #recombine gender data
     combinedData = merge(maleData, femaleData, all=T)
     return(combinedData)
+}
+
+## 8. Create tidy dataset based on cleaned Data Series List
+
+asthma_helpers_02$createTidyAsthmaData = function(dataSeriesList){
+    asthmaData = Reduce( function(...) merge(..., all = T), dataSeriesList)
+    # remove Prev.num column: can be estimated roughly from data
+    asthmaData = asthmaData[, !grepl("Prev.num", names(asthmaData))]
+    # remove bad rows: associated with territory
+    asthmaData = asthmaData[!grepl("Territor", asthmaData$State), ]
+    # remove comma (thousand separators) to facilitate numeric conversion
+    asthmaData$SampleSize = gsub("[[:punct:]]", "", asthmaData$SampleSize) 
+    asthmaData$PrevSize.est = as.numeric(asthmaData$SampleSize) * as.numeric(asthmaData$Prev.perc)/100
+    return(asthmaData)    
 }

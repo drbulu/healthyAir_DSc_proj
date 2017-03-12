@@ -10,7 +10,6 @@ source(file.path(helperParentDir, "helpers-asthma_data_01-url_table_prep.R"))
 asthma_URL_table_list = asthma_helpers_01$createAsthmaURLTables()
 
 # iii) remove list of helpers when no longer required
-# rm(asthma_helpers_01)
 
 ## 02 - Obtain the data relating to the contents of the URL tables in step 01
 source(file.path(helperParentDir, "helpers-asthma_data_02-url_data_prep.R"))
@@ -29,7 +28,7 @@ asthmaListofDataTableLists = getAsthmaDataTableLists(asthma_URL_table_list)
 ## 03 - Prepare and merge the data obtained from the previous step to 
 # create list of Asthma data series
 
-preprocessAndMergeData = function(dataTableList){
+createDataSeriesList = function(dataTableList){
     # find and process the names of the Adult L21 tables
     # from 2001 and 2002. These caused much grief before.
     preppeddataTableList = lapply(dataTableList, 
@@ -40,26 +39,19 @@ preprocessAndMergeData = function(dataTableList){
     return(asthmaDataSeriesList)
 }
 
-asthmaDataSeriesList = preprocessAndMergeData(asthmaListofDataTableLists)
+asthmaDataSeriesList = createDataSeriesList(asthmaListofDataTableLists)
 
 ## 04 - Prepare and merge the data obtained from the previous step to 
 # create list of Asthma data series
 
-# NOTE: Deal with warnings!
-# NOTE: remove Prev.num column and replace it with SamplePrev.est
-# i) not available for gender data
-# ii) is derived from sample data anyway!
+asthmaDataSeriesList = asthma_helpers_02$reformatDataSeriesList(dataSeriesList = asthmaDataSeriesList)
 
-asthmaDataSeriesList2 = asthma_helpers_02$reformatDataSeriesList(dataSeriesList = asthmaDataSeriesList)
+asthmaDataSet = asthma_helpers_02$createTidyAsthmaData(dataSeriesList = asthmaDataSeriesList)
 
-#
-
-## 04 - Save files to disc for further analysis!
-# probably in a common data dir!
-
-# writing 
+## 05 - Save data to disk for further analysis!
 asthmaDataDir = "./Data/asthma/series/"
+asthmaGZipFile = file.path(asthmaDataDir, "asthma_data.csv.gz")
+gen_helpers_01$gzipDataFile(dataFrame = asthmaDataSet, gzPath = asthmaGZipFile)
 
-# gen_helpers_01$saveDataListCsv(asthmaDataSeriesList, asthmaDataDir)
-
-rm(asthma_helpers_02)
+## 06 - cleanup: remove helper function lists
+rm(asthma_helpers_01, asthma_helpers_02)

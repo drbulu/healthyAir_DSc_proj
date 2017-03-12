@@ -121,3 +121,7 @@ gen_helpers_01$getCsvDataListFromDir = function(dirName){
     }
     return(dataList)
 }
+
+# http://stackoverflow.com/a/33195653
+gen_helpers_01$gzipDataFile = function(dataFrame, gzPath) write.csv(dataFrame, file=gzfile(gzPath), row.names = F)
+gen_helpers_01$gunzipCsvFile = function(gzFilePath) read.csv(gzfile(gzFilePath), stringsAsFactors = F)
