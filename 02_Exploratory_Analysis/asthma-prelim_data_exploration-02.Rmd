@@ -131,7 +131,62 @@ State level (50 states) granularity needs different strategy to condense explora
 What vis types?
 
 
-<p style="text-align:center;">Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :smile:</p>
+
+.......
+```{r, createExploreGraphs}
+library(ggplot2); library(grid); library(gridExtra)
+source("./helper_scripts/02_data_explore/helpers-asthma_data_explore_plots_01.R")
+
+asthmaExplorePlots = data_exp_asthma_01$asthaPlotExploreGroup(asthmaData)
+sort(names(asthmaExplorePlots))
+
+```
+
+### Graphs by Demographic Category
+
+#### Age
+
+```{r, ageExploreGraphs}
+ageGraphList = grepl("age", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ageGraphList], ncol = 1))
+```
+
+#### Ethnicity
+
+```{r, ethnicExploreGraphs}
+ethnicGraphList = grepl("ethnicity", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ethnicGraphList], ncol = 1))
+```
+
+#### Gender
+
+```{r, genderExploreGraphs}
+genderGraphList = grepl("gender", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[genderGraphList], ncol = 1))
+```
+
+#### Income
+
+```{r, incomeExploreGraphs}
+incomeGraphList = grepl("income", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[incomeGraphList], ncol = 1))
+```
+
+#### Education
+
+```{r, educationExploreGraphs}
+educationGraphList = grepl("education", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[educationGraphList], ncol = 1))
+```
+
+#### Overall
+
+```{r, overallExploreGraphs}
+overallGraphList = grepl("overall", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[overallGraphList], ncol = 1))
+```
+
+<p style="text-align:center; border-style:solid;border-color:blue;">:smile: Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :alien: Back to [the top]() :smile:</p>
 
 ## Appendix
 
