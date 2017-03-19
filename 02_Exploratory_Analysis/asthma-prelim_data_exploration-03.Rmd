@@ -1,0 +1,91 @@
+---
+title: "Asthma data: Preliminary Data Exploration 4 - Further analysis"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+---
+
+## Intro
+
+This document is a first look at the previously processed asthma dataset.
+
+### Setup
+
+
+```{r, configChunk, echo=TRUE}
+# Getting knitr to play ball
+# http://stackoverflow.com/questions/24585254/working-with-knitr-using-subdirectories
+require(knitr, quietly=TRUE)
+opts_knit$set(root.dir = normalizePath("../"))
+```
+
+
+## Data exploration
+
+### Data import
+
+We will import the processed Asthma dataset as per the [previous section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.Rmd), but with helper functions necessary to facilitate our graphical data analysis.
+
+```{r, dataImport, message=F, warning=F}
+#### 1. Data Import ####
+# import helper functions
+helperParentDir = "./helper_scripts/"
+
+library(ggplot2); library(grid); library(gridExtra)
+
+source(file.path(helperParentDir, "01_data_prep/", "general_helpers_01.R"))
+source(file.path(helperParentDir, "02_data_explore/", "helpers-asthma_data_explore_plots_01.R"))
+
+# Source data dir
+asthmaDataDir = "./Data/asthma/series/"
+asthmaGZipFile = file.path(asthmaDataDir, "asthma_data.csv.gz")
+
+# readr handles compressed files automatically :)
+asthmaData = gen_helpers_01$read_csv_quiet(asthmaGZipFile)
+# but need to convert to data.frame ... tibble issues!
+asthmaData = as.data.frame(asthmaData)
+```
+
+### Strategy Outline
+
+Previous analysis gave us a simple overview of the aggregate data at a national level (via the totals).
+
+Trying to measure state-level data integrity, to see if the dataset can be explored at a regional or state level or if the data is too patchy (particularly in the earlier years). This also gives us an idea of whether we can apply data imputation.
+
+### The search for missing data
+
+Lists all the state and demographic categories
+
+| State | Demographic Type Cols                                 |
+|-------|-------------------------------------------------------|
+| list  | count of missing years for a given demographic column |
+
+Gives a state-level view of the completeness of the data in each region. Captures time by counting the number of years where data is missing for a particular demographic type for each region.
+
+The important thing is to try to see whether it is worth modelling the data by State. Summarising all of the essential characteristics of this dataset
+
+* geographic: State (Rows)
+* demographic: Column variables
+* temporal: Missing years (table cells)
+
+This allows us to thus:
+
+* decide which data subsets are useful
+* identify data demographic subsets worth examining in greater detail
+* identify potential data imputation strategies (where relevant)
+
+We can do the same thing by attributes
+
+| Year  | Demographic Type Cols                                 |
+|-------|-------------------------------------------------------|
+| list  | count of missing years for a given demographic column |
+
+* geographic: State (table cells)
+* demographic: Column variables
+* temporal: Year (Rows)
+
+Conceptually, this can basically be thought of as a quasi-pivot table
+
+
+<p style="text-align:center; border-style:solid;border-color:blue;">:smile: Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :alien: Back to [the top]() :smile:</p>

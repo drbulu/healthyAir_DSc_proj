@@ -1,5 +1,5 @@
 ---
-title: "Asthma data: Preliminary Data Exploration"
+title: "Asthma data: Preliminary Data Exploration 2"
 output:
   html_document:
     toc: true
@@ -22,7 +22,6 @@ require(knitr, quietly=TRUE)
 opts_knit$set(root.dir = normalizePath("../"))
 ```
 
-
 ## Data exploration
 
 ### Data import
@@ -30,7 +29,6 @@ opts_knit$set(root.dir = normalizePath("../"))
 I imported the prepared asthma dataset data using the code in the chunk below. Note, the functionality prototyping that I did in **asthma-exploratory_notes-01.R** was to create helpers (as is my wont) to neaten up the primary analysis code. Generally useful functions, such as **getCsvDataListFromDir()**, were moved to **general_helpers_01.R** while some of the other functionality in this chunk exists in **helpers-asthma_data_explore_00.R** (generally useful for data summary).
 
 ```{r, dataImport, message=F, warning=F}
-
 #### 1. Data Import ####
 # import helper functions
 helperParentDir = "./helper_scripts/"
@@ -45,22 +43,17 @@ asthmaGZipFile = file.path(asthmaDataDir, "asthma_data.csv.gz")
 asthmaData = gen_helpers_01$read_csv_quiet(asthmaGZipFile)
 # but need to convert to data.frame ... tibble issues!
 asthmaData = as.data.frame(asthmaData)
-
 ```
 
 ### Initial data snapshot
 
 ```{r}
-
 knitr::kable(summary(asthmaData))
-
 ```
 
 
 ```{r}
-
 knitr::kable(head(asthmaData))
-
 ```
 
 ```{r}
@@ -108,6 +101,8 @@ uniqueValidEntries = Reduce( function(...) merge(..., all = T), uniqueEntryList)
 knitr::kable(uniqueValidEntries)
 ```
 
+### Data Observations
+
 Totals groups! 
 Totals ** =  Child, 
 US Totals** = Adult
@@ -117,11 +112,6 @@ Too many permutations to pursue with a forest of graphs
 Will try graphing the Overall data (C1 and L1)
 
 data totals!
-```{r}
-a = asthmaData[grepl("Total", asthmaData$State), ]
-
-b = a[a$Demographic == "Overall", ]
-```
 
 Then: try to plot data:
 
@@ -131,64 +121,4 @@ State level (50 states) granularity needs different strategy to condense explora
 What vis types?
 
 
-
-.......
-```{r, createExploreGraphs}
-library(ggplot2); library(grid); library(gridExtra)
-source("./helper_scripts/02_data_explore/helpers-asthma_data_explore_plots_01.R")
-
-asthmaExplorePlots = data_exp_asthma_01$asthaPlotExploreGroup(asthmaData)
-sort(names(asthmaExplorePlots))
-
-```
-
-### Graphs by Demographic Category
-
-#### Age
-
-```{r, ageExploreGraphs}
-ageGraphList = grepl("age", names(asthmaExplorePlots))
-grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ageGraphList], ncol = 1))
-```
-
-#### Ethnicity
-
-```{r, ethnicExploreGraphs}
-ethnicGraphList = grepl("ethnicity", names(asthmaExplorePlots))
-grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ethnicGraphList], ncol = 1))
-```
-
-#### Gender
-
-```{r, genderExploreGraphs}
-genderGraphList = grepl("gender", names(asthmaExplorePlots))
-grid.draw(arrangeGrob(grobs = asthmaExplorePlots[genderGraphList], ncol = 1))
-```
-
-#### Income
-
-```{r, incomeExploreGraphs}
-incomeGraphList = grepl("income", names(asthmaExplorePlots))
-grid.draw(arrangeGrob(grobs = asthmaExplorePlots[incomeGraphList], ncol = 1))
-```
-
-#### Education
-
-```{r, educationExploreGraphs}
-educationGraphList = grepl("education", names(asthmaExplorePlots))
-grid.draw(arrangeGrob(grobs = asthmaExplorePlots[educationGraphList], ncol = 1))
-```
-
-#### Overall
-
-```{r, overallExploreGraphs}
-overallGraphList = grepl("overall", names(asthmaExplorePlots))
-grid.draw(arrangeGrob(grobs = asthmaExplorePlots[overallGraphList], ncol = 1))
-```
-
 <p style="text-align:center; border-style:solid;border-color:blue;">:smile: Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :alien: Back to [the top]() :smile:</p>
-
-## Appendix
-
-
-<p style="text-align:center;">Back to [the top]() :smile:</p>
