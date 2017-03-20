@@ -31,7 +31,7 @@ opts_knit$set(base.dir = file.path(figDir, workingSubdir))
 # URL sorting - linked to the base.dir path config
 baseURL = paste0("https://github.com/drbulu/healthyAir_DSc_proj/", 
     "blob/master/")
-opts_knit$set(base.url = paste0(baseURL, "Fig", workingSubdir, "/"))
+opts_knit$set(base.url = paste0(baseURL, "Fig/", workingSubdir, "/"))
 ```
 
 ## Data exploration

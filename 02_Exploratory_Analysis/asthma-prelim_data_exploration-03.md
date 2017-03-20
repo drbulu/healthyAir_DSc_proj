@@ -2,17 +2,11 @@
 
 ## Intro
 
-[previous section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.md).
-
-This document is a first look at the previously processed asthma dataset.
-
-Playinng around with ideas... State level (50 states) granularity needs different strategy to condense exploratory vis over time. a) raw numbers b) relative to value in current year (0) previous years are either higher or lower!.
-What vis types?
+Following from the [previous section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.md) we are going to create graphical summaries of the aggregate data (totals) to get an overall shape of the dataset.
 
 ### Setup
 
 In the [data preparation phase](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd), we were able to scrape together a number of tables from the web and save them to disk as CSV files. 
-
 
 
 ```r
@@ -31,14 +25,14 @@ opts_knit$set(base.dir = file.path(figDir, workingSubdir))
 # URL sorting - linked to the base.dir path config
 baseURL = paste0("https://github.com/drbulu/healthyAir_DSc_proj/", 
     "blob/master/")
-opts_knit$set(base.url = paste0(baseURL, "Fig", workingSubdir, "/"))
+opts_knit$set(base.url = paste0(baseURL, "Fig/", workingSubdir, "/"))
 ```
 
 ## Data exploration
 
 ### Data import
 
-We will import the processed Asthma dataset as per the [previous section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.Rmd), but with helper functions necessary to facilitate our graphical data analysis.
+As per out [standard protocol](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.md) :smile:.
 
 
 ```r
@@ -94,7 +88,7 @@ ageGraphList = grepl("age", names(asthmaExplorePlots))
 grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ageGraphList], ncol = 1))
 ```
 
-![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/ageExploreGraphs-1.png)<!-- -->
+![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig/02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/ageExploreGraphs-1.png)<!-- -->
 
 #### Ethnicity
 
@@ -104,7 +98,7 @@ ethnicGraphList = grepl("ethnicity", names(asthmaExplorePlots))
 grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ethnicGraphList], ncol = 1))
 ```
 
-![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/ethnicExploreGraphs-1.png)<!-- -->
+![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig/02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/ethnicExploreGraphs-1.png)<!-- -->
 
 #### Gender
 
@@ -114,7 +108,7 @@ genderGraphList = grepl("gender", names(asthmaExplorePlots))
 grid.draw(arrangeGrob(grobs = asthmaExplorePlots[genderGraphList], ncol = 1))
 ```
 
-![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/genderExploreGraphs-1.png)<!-- -->
+![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig/02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/genderExploreGraphs-1.png)<!-- -->
 
 #### Income
 
@@ -124,7 +118,7 @@ incomeGraphList = grepl("income", names(asthmaExplorePlots))
 grid.draw(arrangeGrob(grobs = asthmaExplorePlots[incomeGraphList], ncol = 1))
 ```
 
-![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/incomeExploreGraphs-1.png)<!-- -->
+![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig/02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/incomeExploreGraphs-1.png)<!-- -->
 
 #### Education
 
@@ -134,7 +128,7 @@ educationGraphList = grepl("education", names(asthmaExplorePlots))
 grid.draw(arrangeGrob(grobs = asthmaExplorePlots[educationGraphList], ncol = 1))
 ```
 
-![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/educationExploreGraphs-1.png)<!-- -->
+![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig/02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/educationExploreGraphs-1.png)<!-- -->
 
 #### Overall
 
@@ -144,7 +138,7 @@ overallGraphList = grepl("overall", names(asthmaExplorePlots))
 grid.draw(arrangeGrob(grobs = asthmaExplorePlots[overallGraphList], ncol = 1))
 ```
 
-![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/overallExploreGraphs-1.png)<!-- -->
+![](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/Fig/02_Exploratory_Analysis/asthma-prelim_data_exploration-03_files/figure-html/overallExploreGraphs-1.png)<!-- -->
 
 [next section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-04.md).
 
