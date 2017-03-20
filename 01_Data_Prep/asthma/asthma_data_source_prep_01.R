@@ -41,6 +41,11 @@ createDataSeriesList = function(dataTableList){
 
 asthmaDataSeriesList = createDataSeriesList(asthmaListofDataTableLists)
 
+## commented out line below saves the data as individual CSV files
+## prior to the additional processing:
+# asthmaDataDir = "./Data/asthma/series/"
+# gen_helpers_01$saveDataListCsv(asthmaDataSeriesList, asthmaDataDir)
+
 ## 04 - Prepare and merge the data obtained from the previous step to 
 # create list of Asthma data series
 

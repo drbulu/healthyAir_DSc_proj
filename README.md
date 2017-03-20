@@ -99,9 +99,11 @@ Therefore, before we get to the exciting task of constructing exploratory visual
 
 Conceivably, the results of this stage of the analysis could be fed back into the data preparation step in order implement further refinements as required.
 
+<!-- needed to convert the exploratory analysis files to markdown (md)... github doesn't process RMarkdonw (Rmd)... sheepish :) -->
+
 1. Asthma Data:
 
-* [Preliminary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.Rmd)
+* [Preliminary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.md)
 
 2. Asthma Data:
 

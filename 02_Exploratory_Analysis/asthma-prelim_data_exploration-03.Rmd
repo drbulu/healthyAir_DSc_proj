@@ -1,5 +1,5 @@
 ---
-title: "Asthma data: Preliminary Data Exploration 4 - Further analysis"
+title: "Asthma data: Preliminary Data Exploration 3 - Graphical Summary"
 output:
   html_document:
     toc: true
@@ -8,9 +8,16 @@ output:
 
 ## Intro
 
+[previous section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.md).
+
 This document is a first look at the previously processed asthma dataset.
 
+Playinng around with ideas... State level (50 states) granularity needs different strategy to condense exploratory vis over time. a) raw numbers b) relative to value in current year (0) previous years are either higher or lower!.
+What vis types?
+
 ### Setup
+
+In the [data preparation phase](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/01_Data_Prep/asthma_data_source_prep_02.Rmd), we were able to scrape together a number of tables from the web and save them to disk as CSV files. 
 
 
 ```{r, configChunk, echo=TRUE}
@@ -47,45 +54,65 @@ asthmaData = gen_helpers_01$read_csv_quiet(asthmaGZipFile)
 asthmaData = as.data.frame(asthmaData)
 ```
 
-### Strategy Outline
+### Initial data snapshot
 
-Previous analysis gave us a simple overview of the aggregate data at a national level (via the totals).
+Then: try to plot data:
 
-Trying to measure state-level data integrity, to see if the dataset can be explored at a regional or state level or if the data is too patchy (particularly in the earlier years). This also gives us an idea of whether we can apply data imputation.
+Groups (2): Adult and Child, by Demographic (6) across Time (15 years)
 
-### The search for missing data
+State level (50 states) granularity needs different strategy to condense exploratory vis over time. a) raw numbers b) relative to value in current year (0) previous years are either higher or lower!.
+What vis types?
 
-Lists all the state and demographic categories
+.......
+```{r, createExploreGraphs}
+asthmaExplorePlots = data_exp_asthma_01$asthaPlotExploreGroup(asthmaData)
+sort(names(asthmaExplorePlots))
+```
 
-| State | Demographic Type Cols                                 |
-|-------|-------------------------------------------------------|
-| list  | count of missing years for a given demographic column |
+### Graphs by Demographic Category
 
-Gives a state-level view of the completeness of the data in each region. Captures time by counting the number of years where data is missing for a particular demographic type for each region.
+#### Age
 
-The important thing is to try to see whether it is worth modelling the data by State. Summarising all of the essential characteristics of this dataset
+```{r, ageExploreGraphs}
+ageGraphList = grepl("age", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ageGraphList], ncol = 1))
+```
 
-* geographic: State (Rows)
-* demographic: Column variables
-* temporal: Missing years (table cells)
+#### Ethnicity
 
-This allows us to thus:
+```{r, ethnicExploreGraphs}
+ethnicGraphList = grepl("ethnicity", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[ethnicGraphList], ncol = 1))
+```
 
-* decide which data subsets are useful
-* identify data demographic subsets worth examining in greater detail
-* identify potential data imputation strategies (where relevant)
+#### Gender
 
-We can do the same thing by attributes
+```{r, genderExploreGraphs}
+genderGraphList = grepl("gender", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[genderGraphList], ncol = 1))
+```
 
-| Year  | Demographic Type Cols                                 |
-|-------|-------------------------------------------------------|
-| list  | count of missing years for a given demographic column |
+#### Income
 
-* geographic: State (table cells)
-* demographic: Column variables
-* temporal: Year (Rows)
+```{r, incomeExploreGraphs}
+incomeGraphList = grepl("income", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[incomeGraphList], ncol = 1))
+```
 
-Conceptually, this can basically be thought of as a quasi-pivot table
+#### Education
 
+```{r, educationExploreGraphs}
+educationGraphList = grepl("education", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[educationGraphList], ncol = 1))
+```
 
-<p style="text-align:center; border-style:solid;border-color:blue;">:smile: Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :alien: Back to [the top]() :smile:</p>
+#### Overall
+
+```{r, overallExploreGraphs}
+overallGraphList = grepl("overall", names(asthmaExplorePlots))
+grid.draw(arrangeGrob(grobs = asthmaExplorePlots[overallGraphList], ncol = 1))
+```
+
+[next section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-04.md).
+
+<p style="text-align:center; border-style:solid;border-color:blue;">:smile: Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :alien: Back to [the top]() :smile:</p><br/><br/>
