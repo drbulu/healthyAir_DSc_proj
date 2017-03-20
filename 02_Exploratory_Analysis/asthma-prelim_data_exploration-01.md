@@ -379,6 +379,8 @@ The **Demographic** column would capture the information presently captured in c
 
 3. On the topic of State names, we do need to create a metadata reference containg state information such as State name, abbreviation and other potentially useful information. To obtain this information we can simply obtain the tables such as [this](https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States) one and [this](https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_area) one by webscraping :smile:. Such metadata would be quite valuable, given that other datasets in this project (e.g the traffic data) contain full name description of states and not abbreviations as in the case with this data. We would then need a way of translating between the full names and abbreviations.
 
+Let's see what the [next section](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.md) has in store for us :smile:.
+
 <p style="text-align:center;">Back to [Project Readme](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/README.md#2-exploratory-data-analysis) :smile:</p>
 
 ## Appendix

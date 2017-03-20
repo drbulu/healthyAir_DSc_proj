@@ -53,7 +53,7 @@ Now that we have gone back and tweaked the processing of the data we need to ree
 * have properly cleaned the data prior to further exploration.
 
 ```{r}
-knitr::kable(summary(asthmaData))
+knitr::kable(summary(asthmaData), format = "markdown")
 ```
 
 The summary above indicates that the classes of the data columns are now correctly processed :smile:... almost. **Prev.perc.SE** should also be numeric :confused:. In addition, **SampleSize** has a minimun value of zero, indicating that there might be data collection issues. Further, the other prevalence-related columns each contain 36 **NA**s, which might be related to the zero sample size observations.
@@ -61,7 +61,7 @@ The summary above indicates that the classes of the data columns are now correct
 However, this is a good step forward, now let's take a sneak [peak](https://twitter.com/_SneakPeak) (sic) at the data to see what our combined table looks like:
 
 ```{r}
-knitr::kable(head(asthmaData))
+knitr::kable(head(asthmaData), format = "markdown")
 ```
 
 Overall, the data looks good... but let's take a look at these missing values in order to see what patterns or data characteristics may be responsible.
@@ -69,7 +69,7 @@ Overall, the data looks good... but let's take a look at these missing values in
 ### Checking out the missing data
 
 ```{r}
-knitr::kable(head(asthmaData[is.na(asthmaData$Prev.perc), ]), row.names = F)
+knitr::kable(head(asthmaData[is.na(asthmaData$Prev.perc), ]), row.names = F, format = "markdown")
 unique(asthmaData[is.na(asthmaData$Prev.perc), "Dem.Category"])
 ```
 
@@ -88,7 +88,7 @@ uniqueNaEntryList = lapply(subsetCols, FUN = function(x, dataSet){
 }, dataSet = asthmaData[is.na(asthmaData$Prev.perc), ])
 
 uniqueNaEntries = Reduce( function(...) merge(..., all = T), uniqueNaEntryList)
-knitr::kable(uniqueNaEntries)
+knitr::kable(uniqueNaEntries, format = "markdown")
 ```
 
 Interestingly, we can see that the issues relating to NA values in the prevalence data columns seem to be related to the collection of data from certain ethnic groups from three specific states. This probably explains why the minimum sample size is zero in the summamry table. Notably, this potential issue spans a large number of the time period represented in the dataset.
@@ -103,7 +103,7 @@ Now that we have a better understanding of some of the potential issues that for
 
 ```{r}
 asthmaValidData = asthmaData[!is.na(asthmaData$Prev.perc), ]
-knitr::kable(head(asthmaValidData))
+knitr::kable(head(asthmaValidData), format = "markdown")
 ```
 
 This is the same as what we have seen in the [initial snapshot](#initial-data-snapshot), but this is always a good thing to do after a potentially sigificant data op. What is more instructive is performing the same summary of the data's characteristics as we did [before](checking-out-the-missing-data):
@@ -119,7 +119,7 @@ uniqueEntryList = lapply(subsetCols, FUN = function(x, dataSet){
 
 uniqueValidEntries = Reduce( function(...) merge(..., all = T), uniqueEntryList)
 
-knitr::kable(uniqueValidEntries)
+knitr::kable(uniqueValidEntries, format = "markdown")
 ```
 
 This table is pretty much what you would expect, given the fact that we saw this level of granularity in the source webpages. However, the thing to point out as part of this exploratory phase is the large number of permutations that would be involved in an attempt to plot all of the data as graphs. To give you an idea of the issue, we would need to plot a total of 31 demographic categories from 57 states and territories (note: number includes totals) over a 15 year period. Basically, we will end up with too many permutations to pursue with a forest of graphs.

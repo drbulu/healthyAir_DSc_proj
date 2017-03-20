@@ -49,18 +49,20 @@ Now that we have gone back and tweaked the processing of the data we need to ree
 
 
 ```r
-knitr::kable(summary(asthmaData))
+knitr::kable(summary(asthmaData), format = "markdown")
 ```
 
-        State             SampleSize       Prev.perc      Prev.perc.SE         Group.ID              Year        Table.ID         Demographic        Dem.Category        PrevSize.est    
----  -----------------  ---------------  ---------------  -----------------  -----------------  -------------  -----------------  -----------------  -----------------  -----------------
-     Length:45351       Min.   :     0   Min.   :  0.00   Length:45351       Length:45351       Min.   :2000   Length:45351       Length:45351       Length:45351       Min.   :    0.00 
-     Class :character   1st Qu.:   397   1st Qu.:  8.10   Class :character   Class :character   1st Qu.:2004   Class :character   Class :character   Class :character   1st Qu.:   41.18 
-     Mode  :character   Median :   927   Median : 10.70   Mode  :character   Mode  :character   Median :2008   Mode  :character   Mode  :character   Mode  :character   Median :   97.47 
-     NA                 Mean   :  3055   Mean   : 11.35   NA                 NA                 Mean   :2007   NA                 NA                 NA                 Mean   :  330.16 
-     NA                 3rd Qu.:  1952   3rd Qu.: 13.70   NA                 NA                 3rd Qu.:2011   NA                 NA                 NA                 3rd Qu.:  208.48 
-     NA                 Max.   :496223   Max.   :100.00   NA                 NA                 Max.   :2014   NA                 NA                 NA                 Max.   :67524.38 
-     NA                 NA               NA's   :36       NA                 NA                 NA             NA                 NA                 NA                 NA's   :36       
+
+
+|   |   State         |  SampleSize   |  Prev.perc    |Prev.perc.SE     |  Group.ID       |     Year    |  Table.ID       |Demographic      |Dem.Category     | PrevSize.est    |
+|:--|:----------------|:--------------|:--------------|:----------------|:----------------|:------------|:----------------|:----------------|:----------------|:----------------|
+|   |Length:45351     |Min.   :     0 |Min.   :  0.00 |Length:45351     |Length:45351     |Min.   :2000 |Length:45351     |Length:45351     |Length:45351     |Min.   :    0.00 |
+|   |Class :character |1st Qu.:   397 |1st Qu.:  8.10 |Class :character |Class :character |1st Qu.:2004 |Class :character |Class :character |Class :character |1st Qu.:   41.18 |
+|   |Mode  :character |Median :   927 |Median : 10.70 |Mode  :character |Mode  :character |Median :2008 |Mode  :character |Mode  :character |Mode  :character |Median :   97.47 |
+|   |NA               |Mean   :  3055 |Mean   : 11.35 |NA               |NA               |Mean   :2007 |NA               |NA               |NA               |Mean   :  330.16 |
+|   |NA               |3rd Qu.:  1952 |3rd Qu.: 13.70 |NA               |NA               |3rd Qu.:2011 |NA               |NA               |NA               |3rd Qu.:  208.48 |
+|   |NA               |Max.   :496223 |Max.   :100.00 |NA               |NA               |Max.   :2014 |NA               |NA               |NA               |Max.   :67524.38 |
+|   |NA               |NA             |NA's   :36     |NA               |NA               |NA           |NA               |NA               |NA               |NA's   :36       |
 
 The summary above indicates that the classes of the data columns are now correctly processed :smile:... almost. **Prev.perc.SE** should also be numeric :confused:. In addition, **SampleSize** has a minimun value of zero, indicating that there might be data collection issues. Further, the other prevalence-related columns each contain 36 **NA**s, which might be related to the zero sample size observations.
 
@@ -68,19 +70,19 @@ However, this is a good step forward, now let's take a sneak [peak](https://twit
 
 
 ```r
-knitr::kable(head(asthmaData))
+knitr::kable(head(asthmaData), format = "markdown")
 ```
 
 
 
-State    SampleSize   Prev.perc  Prev.perc.SE   Group.ID    Year  Table.ID   Demographic   Dem.Category    PrevSize.est
-------  -----------  ----------  -------------  ---------  -----  ---------  ------------  -------------  -------------
-AK              101         5.4  1.84           adult       2005  C5         Ethnicity     Multirace NH           5.454
-AK             1014         7.8  1.06           adult       2011  C6         Education     Some Coll             79.092
-AK              102         9.5  2.67           adult       2005  L5         Ethnicity     Multirace NH           9.690
-AK             1021        14.4  1.54           adult       2011  L6         Education     Some Coll            147.024
-AK             1028        11.1  1.58           adult       2014  C3         Age           55-64                114.108
-AK             1031        15.2  1.79           adult       2014  L3         Age           55-64                156.712
+|State | SampleSize| Prev.perc|Prev.perc.SE |Group.ID | Year|Table.ID |Demographic |Dem.Category | PrevSize.est|
+|:-----|----------:|---------:|:------------|:--------|----:|:--------|:-----------|:------------|------------:|
+|AK    |        101|       5.4|1.84         |adult    | 2005|C5       |Ethnicity   |Multirace NH |        5.454|
+|AK    |       1014|       7.8|1.06         |adult    | 2011|C6       |Education   |Some Coll    |       79.092|
+|AK    |        102|       9.5|2.67         |adult    | 2005|L5       |Ethnicity   |Multirace NH |        9.690|
+|AK    |       1021|      14.4|1.54         |adult    | 2011|L6       |Education   |Some Coll    |      147.024|
+|AK    |       1028|      11.1|1.58         |adult    | 2014|C3       |Age         |55-64        |      114.108|
+|AK    |       1031|      15.2|1.79         |adult    | 2014|L3       |Age         |55-64        |      156.712|
 
 Overall, the data looks good... but let's take a look at these missing values in order to see what patterns or data characteristics may be responsible.
 
@@ -88,19 +90,19 @@ Overall, the data looks good... but let's take a look at these missing values in
 
 
 ```r
-knitr::kable(head(asthmaData[is.na(asthmaData$Prev.perc), ]), row.names = F)
+knitr::kable(head(asthmaData[is.na(asthmaData$Prev.perc), ]), row.names = F, format = "markdown")
 ```
 
 
 
-State    SampleSize   Prev.perc  Prev.perc.SE   Group.ID    Year  Table.ID   Demographic   Dem.Category    PrevSize.est
-------  -----------  ----------  -------------  ---------  -----  ---------  ------------  -------------  -------------
-CT                0          NA                 adult       2002  C5         Ethnicity     Multirace NH              NA
-CT                0          NA                 adult       2002  L5         Ethnicity     Multirace NH              NA
-OH                0          NA                 adult       2002  C5         Ethnicity     Multirace NH              NA
-OH                0          NA                 adult       2002  L5         Ethnicity     Multirace NH              NA
-PR                0          NA                 adult       2002  C5         Ethnicity     Multirace NH              NA
-PR                0          NA                 adult       2002  L5         Ethnicity     Multirace NH              NA
+|State | SampleSize| Prev.perc|Prev.perc.SE |Group.ID | Year|Table.ID |Demographic |Dem.Category | PrevSize.est|
+|:-----|----------:|---------:|:------------|:--------|----:|:--------|:-----------|:------------|------------:|
+|CT    |          0|        NA|             |adult    | 2002|C5       |Ethnicity   |Multirace NH |           NA|
+|CT    |          0|        NA|             |adult    | 2002|L5       |Ethnicity   |Multirace NH |           NA|
+|OH    |          0|        NA|             |adult    | 2002|C5       |Ethnicity   |Multirace NH |           NA|
+|OH    |          0|        NA|             |adult    | 2002|L5       |Ethnicity   |Multirace NH |           NA|
+|PR    |          0|        NA|             |adult    | 2002|C5       |Ethnicity   |Multirace NH |           NA|
+|PR    |          0|        NA|             |adult    | 2002|L5       |Ethnicity   |Multirace NH |           NA|
 
 ```r
 unique(asthmaData[is.na(asthmaData$Prev.perc), "Dem.Category"])
@@ -126,19 +128,19 @@ uniqueNaEntryList = lapply(subsetCols, FUN = function(x, dataSet){
 }, dataSet = asthmaData[is.na(asthmaData$Prev.perc), ])
 
 uniqueNaEntries = Reduce( function(...) merge(..., all = T), uniqueNaEntryList)
-knitr::kable(uniqueNaEntries)
+knitr::kable(uniqueNaEntries, format = "markdown")
 ```
 
 
 
-Col.Name        Unique.Vals  Val.Set                                              
--------------  ------------  -----------------------------------------------------
-Dem.Category              2  Black NH, Multirace NH                               
-Demographic               1  Ethnicity                                            
-Group.ID                  2  adult, child                                         
-State                     3  CT, OH, PR                                           
-Table.ID                  2  C5, L5                                               
-Year                      9  2002, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012 
+|Col.Name     | Unique.Vals|Val.Set                                              |
+|:------------|-----------:|:----------------------------------------------------|
+|Dem.Category |           2|Black NH, Multirace NH                               |
+|Demographic  |           1|Ethnicity                                            |
+|Group.ID     |           2|adult, child                                         |
+|State        |           3|CT, OH, PR                                           |
+|Table.ID     |           2|C5, L5                                               |
+|Year         |           9|2002, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012 |
 
 Interestingly, we can see that the issues relating to NA values in the prevalence data columns seem to be related to the collection of data from certain ethnic groups from three specific states. This probably explains why the minimum sample size is zero in the summamry table. Notably, this potential issue spans a large number of the time period represented in the dataset.
 
@@ -153,19 +155,19 @@ Now that we have a better understanding of some of the potential issues that for
 
 ```r
 asthmaValidData = asthmaData[!is.na(asthmaData$Prev.perc), ]
-knitr::kable(head(asthmaValidData))
+knitr::kable(head(asthmaValidData), format = "markdown")
 ```
 
 
 
-State    SampleSize   Prev.perc  Prev.perc.SE   Group.ID    Year  Table.ID   Demographic   Dem.Category    PrevSize.est
-------  -----------  ----------  -------------  ---------  -----  ---------  ------------  -------------  -------------
-AK              101         5.4  1.84           adult       2005  C5         Ethnicity     Multirace NH           5.454
-AK             1014         7.8  1.06           adult       2011  C6         Education     Some Coll             79.092
-AK              102         9.5  2.67           adult       2005  L5         Ethnicity     Multirace NH           9.690
-AK             1021        14.4  1.54           adult       2011  L6         Education     Some Coll            147.024
-AK             1028        11.1  1.58           adult       2014  C3         Age           55-64                114.108
-AK             1031        15.2  1.79           adult       2014  L3         Age           55-64                156.712
+|State | SampleSize| Prev.perc|Prev.perc.SE |Group.ID | Year|Table.ID |Demographic |Dem.Category | PrevSize.est|
+|:-----|----------:|---------:|:------------|:--------|----:|:--------|:-----------|:------------|------------:|
+|AK    |        101|       5.4|1.84         |adult    | 2005|C5       |Ethnicity   |Multirace NH |        5.454|
+|AK    |       1014|       7.8|1.06         |adult    | 2011|C6       |Education   |Some Coll    |       79.092|
+|AK    |        102|       9.5|2.67         |adult    | 2005|L5       |Ethnicity   |Multirace NH |        9.690|
+|AK    |       1021|      14.4|1.54         |adult    | 2011|L6       |Education   |Some Coll    |      147.024|
+|AK    |       1028|      11.1|1.58         |adult    | 2014|C3       |Age         |55-64        |      114.108|
+|AK    |       1031|      15.2|1.79         |adult    | 2014|L3       |Age         |55-64        |      156.712|
 
 This is the same as what we have seen in the [initial snapshot](#initial-data-snapshot), but this is always a good thing to do after a potentially sigificant data op. What is more instructive is performing the same summary of the data's characteristics as we did [before](checking-out-the-missing-data):
 
@@ -181,19 +183,19 @@ uniqueEntryList = lapply(subsetCols, FUN = function(x, dataSet){
 
 uniqueValidEntries = Reduce( function(...) merge(..., all = T), uniqueEntryList)
 
-knitr::kable(uniqueValidEntries)
+knitr::kable(uniqueValidEntries, format = "markdown")
 ```
 
 
 
-Col.Name        Unique.Vals
--------------  ------------
-Dem.Category             31
-Demographic               6
-Group.ID                  2
-State                    57
-Table.ID                 12
-Year                     15
+|Col.Name     | Unique.Vals|
+|:------------|-----------:|
+|Dem.Category |          31|
+|Demographic  |           6|
+|Group.ID     |           2|
+|State        |          57|
+|Table.ID     |          12|
+|Year         |          15|
 
 This table is pretty much what you would expect, given the fact that we saw this level of granularity in the source webpages. However, the thing to point out as part of this exploratory phase is the large number of permutations that would be involved in an attempt to plot all of the data as graphs. To give you an idea of the issue, we would need to plot a total of 31 demographic categories from 57 states and territories (note: number includes totals) over a 15 year period. Basically, we will end up with too many permutations to pursue with a forest of graphs.
 

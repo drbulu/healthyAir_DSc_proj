@@ -9,6 +9,8 @@ output:
 
 ## Intro
 
+... work in progress ...
+
 We are now going to try to dissect the data further, based on the [previous](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-03.md) graphical summary.
 
 ### Setup
