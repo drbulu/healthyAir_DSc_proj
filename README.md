@@ -103,13 +103,17 @@ Conceivably, the results of this stage of the analysis could be fed back into th
 
 1. Asthma Data:
 
-* [Preliminary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.md)
+* [Preliminary data analysis 01](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-01.md): First look at processed asthma data sets.
+* [Preliminary data analysis 02](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-02.md): Analysis of the impact of data processing improvements.
+* [Graphical data exploration](https://github.com/drbulu/healthyAir_DSc_proj/blob/master/02_Exploratory_Analysis/asthma-prelim_data_exploration-03.md): Initial examination of broad trends in aggregate data.
 
-2. Asthma Data:
+2. Traffic Data:
 
+* Analysis in progress...
 
-3. Asthma Data:
+3. Pollution Data:
 
+* Analysis in progress...
 
 #### B. In depth
 
